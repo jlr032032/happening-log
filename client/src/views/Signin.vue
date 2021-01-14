@@ -1,0 +1,40 @@
+<template>
+	<v-container
+		fill-height
+		class="d-flex justify-center"
+	>
+		<v-card
+			class="pa-3"
+			width="370px"
+		>
+			<v-card-title>Ingresar</v-card-title>
+			<v-card-text>
+				<v-text-field
+					filled
+					label="Correo"
+				/>
+				<v-text-field
+					filled
+					type="password"
+					label="Contraseña"
+				/>
+				<v-alert
+					dense
+					outlined
+					dismissible
+					type="warning"
+				>
+					Combinación incorrecta de correo y contraseña.
+				</v-alert>
+			</v-card-text>
+			<v-card-actions>
+				<v-btn
+					color="primary"
+					width="100%"
+				>
+					Iniciar sesión
+				</v-btn>
+			</v-card-actions>
+		</v-card>
+	</v-container>
+</template>
