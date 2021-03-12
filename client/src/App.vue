@@ -18,3 +18,13 @@
 		}
 	}
 </script>
+
+<style>
+	#app {
+		background-image: url("assets/background.png");
+		background-size: cover;
+		background-position-x: center;
+		background-position-y: center;
+		background-repeat: no-repeat;
+	}
+</style>
