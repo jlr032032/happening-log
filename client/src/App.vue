@@ -27,4 +27,10 @@
 		background-position-y: center;
 		background-repeat: no-repeat;
 	}
+	.custom--title-2 {
+		letter-spacing: 0.2rem !important;
+		font-size: 1.1rem;
+		font-weight: 400;
+		text-transform: uppercase;
+	}
 </style>
