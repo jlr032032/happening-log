@@ -4,6 +4,10 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+import Default from '@/layouts/Default'
+
+Vue.component('default-layout', Default)
+
 Vue.config.productionTip = false
 
 new Vue({
