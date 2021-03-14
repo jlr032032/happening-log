@@ -27,6 +27,10 @@
 		background-position-y: center;
 		background-repeat: no-repeat;
 	}
+	.custom--title-1 {
+		font-weight: 700;
+		font-size: 1.8rem;
+	}
 	.custom--title-2 {
 		letter-spacing: 0.2rem !important;
 		font-size: 1.1rem;
