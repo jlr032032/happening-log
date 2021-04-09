@@ -9,6 +9,11 @@ const routes = [
 		path: '/perfil',
 		component: () => import('@/views/Profile'),
 		meta: { layout: 'toolbar', title: 'Perfil' }
+	},
+	{
+		path: '/etiquetas',
+		component: () => import('@/views/Labels'),
+		meta: { layout: 'toolbar', title: 'Etiquetas' }
 	}
 ]
 

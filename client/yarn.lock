@@ -23,6 +23,11 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
+"@bitty/pipe@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@bitty/pipe/-/pipe-0.2.1.tgz#bcab2ec4fd5fb57e4ebc17b6094219da26d1b224"
+  integrity sha512-SOvnlZ2tvG2bjEYsd1OOPBQUUwSTEaRiJ7m1x3geJsOWv8zIt2kM8H1rUepjCrA8zKWCk6kQoi652nU44BVuzA==
+
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
@@ -4224,6 +4229,13 @@ normalize-range@^0.1.2:
   resolved "https://registry.yarnpkg.com/normalize-range/-/normalize-range-0.1.2.tgz#2d10c06bdfd312ea9777695a4d28439456b75942"
   integrity sha1-LRDAa9/TEuqXd2laTShDlFa3WUI=
 
+normalize-text@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/normalize-text/-/normalize-text-2.3.2.tgz#8d53cee17cc539a7db6cd579a1bb6d2f3d20e5d0"
+  integrity sha512-Fx6aBqYLlVLQEV6h0ejhPqaF1vUPI+yIxU7uYtb5rPu+WzRr7KypJKGJFdbSIZpC+ELiiCut/WGU3QDCFff1EA==
+  dependencies:
+    "@bitty/pipe" "^0.2.1"
+
 normalize-url@1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-1.9.1.tgz#2cc0d66b31ea23036458436e3620d85954c66c3c"
@@ -6456,11 +6468,6 @@ vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
-
-vee-validate@^3.4.5:
-  version "3.4.5"
-  resolved "https://registry.yarnpkg.com/vee-validate/-/vee-validate-3.4.5.tgz#96a456c309f7bdb2cce62c3b554f96d893e9f6ae"
-  integrity sha512-ZEcLqOAZzSkMhDvPcTx0xcwVOijFnMW9J+BA20j+rDmo24T8RCCqVQyRwwrDrcWJZV2dRYl/yYNa2GB6UCoBvg==
 
 vendors@^1.0.0:
   version "1.0.4"
