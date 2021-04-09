@@ -28,13 +28,41 @@
 		background-repeat: no-repeat;
 	}
 	.custom--title-1 {
-		font-weight: 700;
-		font-size: 1.8rem;
+		font-weight: 700 !important;
+		font-size: 1.8rem !important;
 	}
 	.custom--title-2 {
 		letter-spacing: 0.2rem !important;
-		font-size: 1.1rem;
-		font-weight: 400;
-		text-transform: uppercase;
+		font-size: 1.1rem !important;
+		font-weight: 400 !important;
+		text-transform: uppercase !important;
+	}
+	.custom--title-3 {
+		letter-spacing: 0.2rem !important;
+		font-size: 0.92rem !important;
+		font-weight: 400 !important;
+		text-transform: uppercase !important;
+	}
+	.custom--title-4 {
+		letter-spacing: 0.2rem !important;
+		font-size: 0.83rem !important;
+		font-weight: 300 !important;
+		text-transform: uppercase !important;
+	}
+	.custom--no-data-text {
+		color: #616161;
+		font-style: italic;
+	}
+	.custom--main-fab {
+		position: fixed !important;
+		bottom: 0 !important;
+		right: 0 !important;
+		margin: 0 25px 25px 0 !important;
+	}
+	.custom--with-fixed-buttons {
+		margin-bottom: 106px !important;
+	}
+	.custom--full-width {
+		width: 100% !important;
 	}
 </style>
