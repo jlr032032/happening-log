@@ -1,7 +1,9 @@
-const contrastingColors = {
-	default: { true: 'white', false: 'black' },
-	text: { true: 'white--text', false: 'black--text' },
-	darkTheme: { true: true, false: false }
+const internal = {
+	contrastingColors: {
+		default: { true: 'white', false: 'black' },
+		text: { true: 'white--text', false: 'black--text' },
+		darkTheme: { true: true, false: false }
+	}
 }
 
 export default {
@@ -15,7 +17,7 @@ export default {
 			colorBrightness = ratioForBlack = 0.299*r + 0.587*g + 0.114*b
 			const ratioForWhite = 255 - colorBrightness
 			const difference = ratioForWhite - ratioForBlack
-			return contrastingColors[ isFor||'default' ][ difference>=0 ]
+			return internal.contrastingColors[ isFor||'default' ][ difference>=0 ]
 		},
 		includesLabel(soughtLabel, labels) {
 			if ( Array.isArray(labels) ) {
