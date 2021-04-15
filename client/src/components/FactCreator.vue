@@ -26,6 +26,7 @@
 						<label-select
 							:labels="labels"
 							multiple
+							clearable
 							v-model="newFactData.labels"
 						/>
 					</div>

@@ -78,6 +78,7 @@
 					<div class="d-flex align-center">
 						<label class="custom--edit-label flex-shrink-0"> Anidar en: </label>
 						<label-select
+							clearable
 							:labels="labels"
 							v-model="newLabelData.parentLabel"
 							:exclude="newLabelData.activeLabel"

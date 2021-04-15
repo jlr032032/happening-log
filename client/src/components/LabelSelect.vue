@@ -7,6 +7,8 @@
 				:multiple="multiple"
 				:items="selectionData.items"
 				:value="selectionData.selected"
+				:clearable="clearable"
+				@click:clear="clearSelection"
 			>
 				<template v-slot:selection="{ item }">
 					<v-chip
@@ -73,7 +75,8 @@
 			labels: Array,
 			selected: {},
 			multiple: { type: Boolean, default: false },
-			exclude: { type: Object, default: null }
+			exclude: { type: Object, default: null },
+			clearable: { type: Boolean, default: false }
 		},
 		model: {
 			prop: 'selected',
@@ -136,6 +139,10 @@
 					this.$emit('change', this.temporarySelected)
 					this.labelTree = false
 				}
+			},
+			clearSelection() {
+				this.selected_ = []
+				this.$emit('change', [])
 			}
 		}
 	}
