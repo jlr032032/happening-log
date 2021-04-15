@@ -1,6 +1,11 @@
 <template>
 	<div>
-		<h2 class="primary--text custom--title-3"> Características </h2>
+		<h2
+			class="primary--text"
+			:class="titleStyle"
+		>
+			Características
+		</h2>
 
 		<div
 			v-if="fields_.length"
@@ -117,6 +122,7 @@
 	export default {
 		name: 'FieldManager',
 		props: {
+			largeTitle: { type: Boolean, default: false },
 			fields: { type: Array, default: () => [] }
 		},
 		model: {
@@ -152,6 +158,9 @@
 		computed: {
 			validNewField() {
 				return Boolean(this.newFieldData.name && this.newFieldData.name.trim())
+			},
+			titleStyle() {
+				return this.largeTitle ? 'custom--title-2' : 'custom--title-3'
 			}
 		},
 		methods: {
