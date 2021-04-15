@@ -1,6 +1,39 @@
 <template>
 	<div>
-		<div @click="showLabelTree">
+
+		<template v-if="onlyLabels">
+			<v-chip
+				v-for="(label, index) of selectionData.items"
+				:key="index"
+				:color="label.color"
+				label
+				small
+				class="mr-2 mb-2"
+				:class="contrastingColor(label.color, 'text')"
+				@click="showLabelTree"
+			>
+				{{ label.name }}
+			</v-chip>
+			<div
+				v-if="noSelection"
+				class="d-flex align-center"
+			>
+				<span class="flex-grow-1 custom--no-data-text"> No se han asignado etiquetas. </span>
+				<v-btn
+					color="primary"
+					dark
+					class="ml-2"
+					@click="showLabelTree"
+				>
+					Agregar
+				</v-btn>
+			</div>
+		</template>
+
+		<div
+			v-else
+			@click="showLabelTree"
+		>
 			<v-select
 				dense
 				readonly
@@ -22,6 +55,7 @@
 				</template>
 			</v-select>
 		</div>
+
 		<v-dialog
 			scrollable
 			v-model="labelTree"
@@ -76,7 +110,8 @@
 			selected: {},
 			multiple: { type: Boolean, default: false },
 			exclude: { type: Object, default: null },
-			clearable: { type: Boolean, default: false }
+			clearable: { type: Boolean, default: false },
+			onlyLabels: { type: Boolean, default: false }
 		},
 		model: {
 			prop: 'selected',
@@ -108,6 +143,9 @@
 					data.selected = this.includesLabel(this.selected_, this.labels) ? this.selected_ : null
 				}
 				return data
+			},
+			noSelection() {
+				return !( Array.isArray(this.selected_) ? this.selected_.length : this.selected_ ) 
 			}
 		},
 		methods: {
