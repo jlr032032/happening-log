@@ -29,14 +29,14 @@ export default new Vuex.Store({
 	},
 	actions: {
 		linkParentLabels({ state }) {
-			internal.linkParentLabels(state.labels, null)
+			internals.linkParentLabels(state.labels, null)
 		}
 	},
 	modules: {
 	}
 })
 
-const internal = {
+const internals = {
 	linkParentLabels(labels, parentLabel) {
 		for ( let label of labels ) {
 			label.parentLabel = parentLabel
