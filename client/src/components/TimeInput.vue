@@ -64,6 +64,9 @@
 			}
 		},
 		watch: {
+			time(newTime) {
+				this.time_ = this.lastGivenTime = newTime
+			},
 			useCurrentTime: async function(use) {
 				if ( use ) {
 					this.timeListenerId = await this.listenToTime(this.timeListenerId)
