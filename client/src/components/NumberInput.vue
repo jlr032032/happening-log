@@ -55,7 +55,7 @@
 		computed: {
 			formattedValue() {
 				if ( typeof this.value_==='number' ) {
-					return Intl.NumberFormat('de-DE', { maximumFractionDigits: 2 }).format(this.value_)
+					return Intl.NumberFormat('de-DE', { maximumFractionDigits: 20 }).format(this.value_)
 				}
 				return null
 			}
