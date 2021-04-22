@@ -120,7 +120,7 @@
 
 <script>
 	export default {
-		name: 'FieldManager',
+		name: 'FieldHandler',
 		props: {
 			largeTitle: { type: Boolean, default: false },
 			fields: { type: Array, default: () => [] }

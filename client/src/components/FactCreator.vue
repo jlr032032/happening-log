@@ -30,7 +30,7 @@
 							v-model="newFactData.labels"
 						/>
 					</div>
-					<field-manager
+					<field-handler
 						class="mt-4"
 						v-model="newFactData.fields"
 					/>
@@ -64,7 +64,7 @@
 		name: 'FactCreator',
 		components: {
 			LabelSelect: () => import('@/components/LabelSelect'),
-			FieldManager: () => import('@/components/FieldManager')
+			FieldHandler: () => import('@/components/FieldHandler')
 		},
 		data: () => ({
 			newFactDialog : false,
