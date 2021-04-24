@@ -65,4 +65,14 @@
 	.custom--full-width {
 		width: 100% !important;
 	}
+	.custom--filter-type-chip {
+		color: var(--v-primary-base) !important;
+		background-color: transparent !important;
+		border: solid 1px var(--v-primary-base) !important;
+	}
+	.custom--filter-type-active-chip {
+		color: white !important;
+		background-color: var(--v-primary-base) !important;
+		border: none !important;
+	}
 </style>
