@@ -14,6 +14,11 @@ const routes = [
 		path: '/etiquetas',
 		component: () => import('@/views/Labels'),
 		meta: { layout: 'toolbar', title: 'Etiquetas' }
+	},
+	{
+		path: '/hechos',
+		component: () => import('@/views/Facts'),
+		meta: { layout: 'toolbar', title: 'Hechos' }
 	}
 ]
 
