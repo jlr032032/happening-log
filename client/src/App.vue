@@ -62,6 +62,11 @@
 	.custom--with-fixed-buttons {
 		margin-bottom: 106px !important;
 	}
+	.custom--go-back-button {
+		position: fixed !important;
+		bottom: 25px;
+		left: 25px;
+	}
 	.custom--full-width {
 		width: 100% !important;
 	}
