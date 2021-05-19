@@ -24,6 +24,11 @@ const routes = [
 		path: '/hechos/:id',
 		component: () => import('@/views/Fact'),
 		meta: { layout: 'toolbar', title: 'Hechos' }
+	},
+	{
+		path: '/hechos/:id/sucesos',
+		component: () => import('@/views/Happenings'),
+		meta: { layout: 'toolbar', title: 'Sucesos' }
 	}
 ]
 
