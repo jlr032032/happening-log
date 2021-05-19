@@ -170,7 +170,7 @@
 				return Boolean( Array.isArray(this.fact_.fields) && this.fact_.fields.length )
 			},
 			useCurrentDatetime() {
-				return this.datetimeSource==='current'
+				return !this.updateMode && this.datetimeSource==='current'
 			},
 			acceptText() {
 				return this.updateMode ? 'Editar' : 'Crear'
