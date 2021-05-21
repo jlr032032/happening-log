@@ -4,6 +4,12 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+import Default from '@/layouts/Default'
+import Toolbar from '@/layouts/Toolbar'
+
+Vue.component('default-layout', Default)
+Vue.component('toolbar-layout', Toolbar)
+
 Vue.config.productionTip = false
 
 new Vue({
