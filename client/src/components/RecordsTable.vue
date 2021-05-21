@@ -12,8 +12,8 @@
 						<th class="text-left"> Fecha </th>
 						<th class="text-left"> Hora </th>
 						<th
-							v-for="(field, factFieldIndex) in fact.fields"
-							:key="factFieldIndex"
+							v-for="(field, happeningFieldIndex) in happening.fields"
+							:key="happeningFieldIndex"
 							class="text-left"
 						>
 							{{ field.name }}
@@ -29,8 +29,8 @@
 						<td>{{ formatDate(record.date) }}</td>
 						<td>{{ formatTime(record.time) }}</td>
 						<td
-							v-for="(field, factFieldIndex) in fact.fields"
-							:key="factFieldIndex"
+							v-for="(field, happeningFieldIndex) in happening.fields"
+							:key="happeningFieldIndex"
 						>
 							{{ getFieldValue(record, field) }}
 						</td>
@@ -63,7 +63,7 @@
 
 		<record-handler
 			:show.sync="recordHandling.dialog"
-			:fact="fact"
+			:happening="happening"
 			:record="recordHandling.record"
 		/>
 
@@ -77,7 +77,7 @@
 			RecordHandler: () => import('@/components/RecordHandler')
 		},
 		props: {
-			fact: { type: Object, default: () => ({ name: '', fields: [] }) },
+			happening: { type: Object, default: () => ({ name: '', fields: [] }) },
 			records: { type: Array, default: () => [] }
 		},
 		data: () => ({

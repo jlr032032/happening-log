@@ -7,13 +7,13 @@
 			<v-card>
 				<v-card-title class="flex-column align-start pb-0">
 					<h2 class="custom--title-4 primary--text">{{ title }}</h2>
-					<h3 class="custom--title-1 primary--text">{{ fact_.name }}</h3>
+					<h3 class="custom--title-1 primary--text">{{ happening_.name }}</h3>
 				</v-card-title>
 				<v-card-text class="mt-4">
 					<div v-if="hasFields">
 						<h4 class="custom--title-4 primary--text"> Características </h4>
 						<v-row
-							v-for="(field, index) of fact_.fields"
+							v-for="(field, index) of happening_.fields"
 							:key="index"
 							dense
 							class="align-center"
@@ -116,13 +116,13 @@
 		},
 		props: {
 			show: { type: Boolean, default: false },
-			fact: { type: Object },
+			happening: { type: Object },
 			record: { type: Object }
 		},
 		data: () => ({
 			recordHandlerDialog: null,
 			datetimeSource: 'other',
-			fact_: {},
+			happening_: {},
 			record_: {
 				date: null,
 				time: null,
@@ -131,7 +131,7 @@
 		}),
 		created() {
 			this.recordHandlerDialog = this.show
-			this.fact_ = this.fact || {}
+			this.happening_ = this.happening || {}
 			if ( this.updateMode ) {
 				this.record_ = JSON.parse( JSON.stringify(this.record) )
 				this.datetimeSource = 'other'
@@ -151,8 +151,8 @@
 				}
 				this.recordHandlerDialog = newShowValue
 			},
-			fact(newFactValue) {
-				this.fact_ = newFactValue || {}
+			happening(newHappeningValue) {
+				this.happening_ = newHappeningValue || {}
 			},
 			record(newRecordValue) {
 				this.record_ = newRecordValue ? JSON.parse( JSON.stringify(this.record) ) : {
@@ -167,7 +167,7 @@
 				return this.updateMode ? 'Modificar registro' : 'Nuevo registro'
 			},
 			hasFields() {
-				return Boolean( Array.isArray(this.fact_.fields) && this.fact_.fields.length )
+				return Boolean( Array.isArray(this.happening_.fields) && this.happening_.fields.length )
 			},
 			useCurrentDatetime() {
 				return !this.updateMode && this.datetimeSource==='current'
@@ -211,13 +211,13 @@
 					console.log('Request sending for saving the new data must be implemented')
 				}
 			},
-			getFieldValue(factFieldId) {
-				const found = this.record_.fields.find( ({ id }) => factFieldId===id )
+			getFieldValue(happeningFieldId) {
+				const found = this.record_.fields.find( ({ id }) => happeningFieldId===id )
 				return found ? found.value : null
 			},
-			setFieldValue(factFieldId, value) {
-				const recordField = this.record_.fields.find( ({ id }) => factFieldId===id )
-				recordField ? recordField.value = value : this.record_.fields.push({ id: factFieldId, value })
+			setFieldValue(happeningFieldId, value) {
+				const recordField = this.record_.fields.find( ({ id }) => happeningFieldId===id )
+				recordField ? recordField.value = value : this.record_.fields.push({ id: happeningFieldId, value })
 			}
 		}
 	}

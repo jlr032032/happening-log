@@ -5,16 +5,16 @@
 			large
 			save-text="Editar"
 			cancel-text="Cancelar"
-			@open="temporaryFact.name = fact.name"
-			@save="updateFactName(temporaryFact.name)"
+			@open="temporaryHappening.name = happening.name"
+			@save="updateHappeningName(temporaryHappening.name)"
 		>
 			<template v-slot:default>
-				<h2 class="custom--title-1 primary--text">{{ fact.name }}</h2>
+				<h2 class="custom--title-1 primary--text">{{ happening.name }}</h2>
 			</template>
 			<template v-slot:input>
 				<v-text-field
 					clearable
-					v-model="temporaryFact.name"
+					v-model="temporaryHappening.name"
 				/>
 			</template>
 		</v-edit-dialog>
@@ -23,29 +23,29 @@
 			only-labels
 			multiple
 			:labels="labels"
-			v-model="fact.label"
+			v-model="happening.label"
 		/>
 
 		<field-handler
 			large-title
 			class="mt-7"
-			v-model="fact.fields"
+			v-model="happening.fields"
 		/>
 
 		<div class="mt-7">
 			<h2 class="primary--text custom--title-2"> Últimos registros </h2>
 			<records-table
-				:fact="fact"
+				:happening="happening"
 				:records="records"
 			/>
-			<router-link :to="`/hechos/${fact.id}/registros`">
+			<router-link :to="`/sucesos/${happening.id}/registros`">
 				<v-btn class="mt-2 primary white--text custom--full-width"> Ver todos los registros </v-btn>
 			</router-link>
 		</div>
 
-		<v-btn class="mt-6 black white--text custom--full-width"> Eliminar hecho </v-btn>
+		<v-btn class="mt-6 black white--text custom--full-width"> Eliminar suceso </v-btn>
 
-		<router-link to="/hechos">
+		<router-link to="/sucesos">
 			<v-btn
 				fab
 				medium
@@ -65,19 +65,19 @@
 	import { normalizeWhiteSpaces } from 'normalize-text'
 
 	export default {
-		name: 'Fact',
+		name: 'Happening',
 		components: {
 			LabelSelect: () => import('@/components/LabelSelect'),
 			FieldHandler: () => import('@/components/FieldHandler'),
 			RecordsTable: () => import('@/components/RecordsTable')
 		},
 		data: () => ({
-			temporaryFact: {
+			temporaryHappening: {
 				name: ''
 			},
-			fact: {
+			happening: {
 				id: 1,
-				name: 'Hecho 1',
+				name: 'Suceso 1',
 				labels: [
 					{ id: '4.2', name: 'Etiqueta 4.2', color: '#fff176' },
 					{ id: '2', name: 'Etiqueta 2', color: '#e1f5fe' }
@@ -113,10 +113,10 @@
 			...mapState(['labels'])
 		},
 		methods: {
-			updateFactName(newName) {
+			updateHappeningName(newName) {
 				newName = normalizeWhiteSpaces(newName)
 				if ( newName ) {
-					this.fact.name = newName
+					this.happening.name = newName
 				}
 			}
 		}

@@ -45,19 +45,19 @@
 
 		<div class="mt-5">
 			<div
-				v-for="(fact, fact_index) in factList"
-				:key="fact_index"
+				v-for="(happening, happening_index) in happeningList"
+				:key="happening_index"
 			>
 				<v-divider
-					v-if="fact_index"
+					v-if="happening_index"
 					class="my-2"
 				/>
 				<div class="d-flex align-center">
 					<div class="flex-grow-1">
-						{{ fact.name }}
+						{{ happening.name }}
 						<div class="mt-1">
 							<v-chip
-								v-for="(label, label_index) in fact.labels"
+								v-for="(label, label_index) in happening.labels"
 								:key="label_index"
 								:color="label.color"
 								label
@@ -75,11 +75,11 @@
 							x-small
 							elevation="0"
 							class="primary white--text mr-1"
-							@click="showRecordHandler(fact)"
+							@click="showRecordHandler(happening)"
 						>
 							<v-icon> mdi-calendar-check </v-icon>
 						</v-btn>
-						<router-link :to="`/hechos/${fact.id}`">
+						<router-link :to="`/sucesos/${happening.id}`">
 							<v-btn
 								fab
 								x-small
@@ -94,11 +94,11 @@
 			</div>
 		</div>
 
-		<fact-creator />
+		<happening-creator />
 
 		<record-handler
 			:show.sync="recordHandling.dialog"
-			:fact="recordHandling.fact"
+			:happening="recordHandling.happening"
 		/>
 
 	</div>
@@ -110,29 +110,29 @@
 	import { normalizeText } from 'normalize-text'
 
 	export default {
-		name: 'Facts',
+		name: 'Happenings',
 		mixins: [ helpers ],
 		components: {
 			LabelSelect: () => import('@/components/LabelSelect'),
-			FactCreator: () => import('@/components/FactCreator'),
+			HappeningCreator: () => import('@/components/HappeningCreator'),
 			RecordHandler: () => import('@/components/RecordHandler')
 		},
 		data: () => ({
-			newFactDialog: false,
+			newHappeningDialog: false,
 			recordHandling: {
 				dialog: false,
 				record: null,
-				fact: null
+				happening: null
 			},
 			filter: {
 				by: 'labels',
 				searchedLabels: [],
 				searchedText: ''
 			},
-			facts: [
+			happenings: [
 				{
 					id: 1,
-					name: 'Hecho 1',
+					name: 'Suceso 1',
 					labels: [
 						{ id: '4.2', name: 'Etiqueta 4.2', color: '#fff176' },
 						{ id: '2', name: 'Etiqueta 2', color: '#e1f5fe' }
@@ -144,10 +144,10 @@
 						{ id: 4, name: "Cuatro", type: "time" }
 					]
 				},
-				{ id: 2, name: 'Hecho 2', labels: [
+				{ id: 2, name: 'Suceso 2', labels: [
 					{ id: '4', name: 'Etiqueta 4', color: '#80cbc4' }
 				]},
-				{ id: 3, name: 'Hecho 3', labels: [
+				{ id: 3, name: 'Suceso 3', labels: [
 					{ id: '5', name: 'Etiqueta 5', color: '#2e7d32' }
 				]}
 			]
@@ -163,12 +163,12 @@
 			filterByText() {
 				return Boolean(this.filter.by==='text' && this.searchedText)
 			},
-			factList() {
+			happeningList() {
 				if ( this.filterByLabels ) {
-					return this.facts.filter( fact => {
-						for ( let factLabel of fact.labels ) {
+					return this.happenings.filter( happening => {
+						for ( let happeningLabel of happening.labels ) {
 							for ( let searchedLabel of this.filter.searchedLabels ) {
-								if ( factLabel.id===searchedLabel.id ) {
+								if ( happeningLabel.id===searchedLabel.id ) {
 									return true
 								}
 							}
@@ -177,17 +177,17 @@
 					})
 				}
 				else if ( this.filterByText ) {
-					return this.facts.filter( fact => normalizeText(fact.name).includes(this.searchedText) )
+					return this.happenings.filter( happening => normalizeText(happening.name).includes(this.searchedText) )
 				}
-				return this.facts
+				return this.happenings
 			}
 		},
 		methods: {
-			showNewFactDialog(value) {
-				this.newFactDialog = value
+			showNewHappeningDialog(value) {
+				this.newHappeningDialog = value
 			},
-			showRecordHandler(fact) {
-				this.recordHandling.fact = fact
+			showRecordHandler(happening) {
+				this.recordHandling.happening = happening
 				this.recordHandling.dialog = true
 			}
 		}
@@ -195,7 +195,7 @@
 </script>
 
 <style scoped>
-	.custom--fact-text {
+	.custom--happening-text {
 		background-color: khaki !important;
 	}
 	.custom--filter-type-label {

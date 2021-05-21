@@ -6,19 +6,19 @@
 			dark
 			color="secondary"
 			class="custom--main-fab"
-			@click="showNewFactDialog()"
+			@click="showNewHappeningDialog()"
 		>
 			<v-icon>mdi-plus</v-icon>
 		</v-btn>
-		<v-dialog v-model="newFactDialog">
+		<v-dialog v-model="newHappeningDialog">
 			<v-card>
-				<v-card-title class="custom--title-2 primary--text"> Crear hecho </v-card-title>
+				<v-card-title class="custom--title-2 primary--text"> Crear suceso </v-card-title>
 				<v-card-text>
 					<div class="d-flex align-center">
 						<label class="custom--creation-form-label"> Nombre: </label>
 						<v-text-field
 							dense
-							v-model="newFactData.name"
+							v-model="newHappeningData.name"
 						/>
 					</div>
 					<div class="d-flex align-center">
@@ -27,27 +27,27 @@
 							:labels="labels"
 							multiple
 							clearable
-							v-model="newFactData.labels"
+							v-model="newHappeningData.labels"
 						/>
 					</div>
 					<field-handler
 						class="mt-4"
-						v-model="newFactData.fields"
+						v-model="newHappeningData.fields"
 					/>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer />
 					<v-btn
 						text
-						@click="hideNewFactDialog()"
+						@click="hideNewHappeningDialog()"
 					>
 						Cancelar
 					</v-btn>
 					<v-btn
 						color="secondary"
 						class="white--text"
-						:disabled="!isValidFact"
-						@click="createFact(newFactData)"
+						:disabled="!isValidHappening"
+						@click="createHappening(newHappeningData)"
 					>
 						Crear
 					</v-btn>
@@ -61,14 +61,14 @@
 	import { mapState } from 'vuex'
 
 	export default {
-		name: 'FactCreator',
+		name: 'HappeningCreator',
 		components: {
 			LabelSelect: () => import('@/components/LabelSelect'),
 			FieldHandler: () => import('@/components/FieldHandler')
 		},
 		data: () => ({
-			newFactDialog : false,
-			newFactData: {
+			newHappeningDialog : false,
+			newHappeningData: {
 				name: '',
 				labels: [],
 				fields: []
@@ -76,25 +76,25 @@
 		}),
 		computed: {
 			...mapState(['labels']),
-			isValidFact() {
-				return Boolean(this.newFactData.name.trim())
+			isValidHappening() {
+				return Boolean(this.newHappeningData.name.trim())
 			}
 		},
 		methods: {
-			showNewFactDialog() {
-				this.newFactData = {
+			showNewHappeningDialog() {
+				this.newHappeningData = {
 					name: '',
 					labels: [],
 					fields: []
 				}
-				this.newFactDialog = true
+				this.newHappeningDialog = true
 			},
-			hideNewFactDialog() {
-				this.newFactDialog = false
+			hideNewHappeningDialog() {
+				this.newHappeningDialog = false
 			},
-			createFact(newFact) {
-				console.log('Create fact:', newFact)
-				this.newFactDialog = false
+			createHappening(newHappening) {
+				console.log('Create happening:', newHappening)
+				this.newHappeningDialog = false
 			}
 		}
 	}

@@ -213,7 +213,7 @@
 </script>
 
 <style scoped>
-	.custom--fact-fixed-width-section {
+	.custom--happening-fixed-width-section {
 		width: 145px
 	}
 	.custom--field-label {

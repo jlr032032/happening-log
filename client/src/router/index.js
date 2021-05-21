@@ -16,17 +16,17 @@ const routes = [
 		meta: { layout: 'toolbar', title: 'Etiquetas' }
 	},
 	{
-		path: '/hechos',
-		component: () => import('@/views/Facts'),
-		meta: { layout: 'toolbar', title: 'Hechos' }
+		path: '/sucesos',
+		component: () => import('@/views/Happenings'),
+		meta: { layout: 'toolbar', title: 'Sucesos' }
 	},
 	{
-		path: '/hechos/:id',
-		component: () => import('@/views/Fact'),
-		meta: { layout: 'toolbar', title: 'Hechos' }
+		path: '/sucesos/:id',
+		component: () => import('@/views/Happening'),
+		meta: { layout: 'toolbar', title: 'Sucesos' }
 	},
 	{
-		path: '/hechos/:id/registros',
+		path: '/sucesos/:id/registros',
 		component: () => import('@/views/Records'),
 		meta: { layout: 'toolbar', title: 'Registros' }
 	}

@@ -66,11 +66,11 @@
 		</div>
 
 		<records-table
-			:fact="fact"
+			:happening="happening"
 			:records="pageRecords"
 		/>
 
-		<router-link :to="`/hechos/${fact.id}`">
+		<router-link :to="`/sucesos/${happening.id}`">
 			<v-btn
 				fab
 				medium
@@ -98,9 +98,9 @@
 				menu: false,
 				temporaryItemsPerPage: null
 			},
-			fact: {
+			happening: {
 				id: 1,
-				name: 'Hecho 1',
+				name: 'Suceso 1',
 				fields: [
 					{ id: 1, name: "Tema de estudio", type: "text" },
 					{ id: 2, name: "Descansos", type: "number" },

@@ -54,7 +54,7 @@
 		data: () => ({
 			menu: false,
 			links: [
-				{ icon: 'mdi-clipboard-text-multiple', text: 'Hechos', path: '/hechos' },
+				{ icon: 'mdi-clipboard-text-multiple', text: 'Sucesos', path: '/sucesos' },
 				{ icon: 'mdi-label-multiple', text: 'Etiquetas', path: '/etiquetas' },
 				{ icon: 'mdi-account', text: 'Perfil', path: '/perfil' }
 			]
