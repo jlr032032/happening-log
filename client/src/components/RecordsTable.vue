@@ -23,16 +23,16 @@
 				</thead>
 				<tbody>
 					<tr
-						v-for="(happening, happeningIndex) in happenings"
-						:key="happeningIndex"
+						v-for="(record, recordIndex) in records"
+						:key="recordIndex"
 					>
-						<td>{{ formatDate(happening.date) }}</td>
-						<td>{{ formatTime(happening.time) }}</td>
+						<td>{{ formatDate(record.date) }}</td>
+						<td>{{ formatTime(record.time) }}</td>
 						<td
 							v-for="(field, factFieldIndex) in fact.fields"
 							:key="factFieldIndex"
 						>
-							{{ getFieldValue(happening, field) }}
+							{{ getFieldValue(record, field) }}
 						</td>
 						<td>
 							<div class="custom--item-actions">
@@ -41,7 +41,7 @@
 									x-small
 									elevation="0"
 									class="transparent primary--text mr-1"
-									@click="showHappeningHandler(happening)"
+									@click="showRecordHandler(record)"
 								>
 									<v-icon> mdi-pencil </v-icon>
 								</v-btn>
@@ -50,7 +50,7 @@
 									x-small
 									elevation="0"
 									class="transparent primary--text"
-									@click="deleteHappening(happeningIndex)"
+									@click="deleteRecord(recordIndex)"
 								>
 									<v-icon> mdi-delete </v-icon>
 								</v-btn>
@@ -61,10 +61,10 @@
 			</template>
 		</v-simple-table>
 
-		<happening-handler
-			:show.sync="happeningHandling.dialog"
+		<record-handler
+			:show.sync="recordHandling.dialog"
 			:fact="fact"
-			:happening="happeningHandling.happening"
+			:record="recordHandling.record"
 		/>
 
 	</div>
@@ -72,18 +72,18 @@
 
 <script>
 	export default {
-		name: 'HappeningsTable',
+		name: 'RecordsTable',
 		components: {
-			HappeningHandler: () => import('@/components/HappeningHandler')
+			RecordHandler: () => import('@/components/RecordHandler')
 		},
 		props: {
 			fact: { type: Object, default: () => ({ name: '', fields: [] }) },
-			happenings: { type: Array, default: () => [] }
+			records: { type: Array, default: () => [] }
 		},
 		data: () => ({
-			happeningHandling: {
+			recordHandling: {
 				dialog: false,
-				happening: null
+				record: null
 			},
 		}),
 		methods: {
@@ -94,8 +94,8 @@
 				const dateObject = new Date(0, 0, 0, ...time.split(':'))
 				return dateObject.toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' })
 			},
-			getFieldValue(happening, metadata) {
-				const field = happening.fields.find( ({ id }) => metadata.id===id )
+			getFieldValue(record, metadata) {
+				const field = record.fields.find( ({ id }) => metadata.id===id )
 				if ( field ) {
 					switch ( metadata.type ) {
 						case 'date': return this.formatDate(field.value)
@@ -105,12 +105,12 @@
 				}
 				return null
 			},
-			showHappeningHandler(happening) {
-				this.happeningHandling.happening = happening
-				this.happeningHandling.dialog = true
+			showRecordHandler(record) {
+				this.recordHandling.record = record
+				this.recordHandling.dialog = true
 			},
-			deleteHappening(index) {
-				this.happenings.splice(index, 1)
+			deleteRecord(index) {
+				this.records.splice(index, 1)
 				console.log('Item deletion should be persisted')
 			}
 		}

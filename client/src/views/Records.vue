@@ -40,7 +40,7 @@
 									dense
 									class="flex-grow-0"
 									type="number"
-									label="Sucesos por página:"
+									label="Registros por página:"
 									v-model="pagination.temporaryItemsPerPage"
 								/>
 								<v-btn
@@ -65,9 +65,9 @@
 			</div>
 		</div>
 
-		<happenings-table
+		<records-table
 			:fact="fact"
-			:happenings="pageHappenings"
+			:records="pageRecords"
 		/>
 
 		<router-link :to="`/hechos/${fact.id}`">
@@ -87,9 +87,9 @@
 
 <script>
 	export default {
-		name: 'Happenings',
+		name: 'Records',
 		components: {
-			HappeningsTable: () => import('@/components/HappeningsTable')
+			RecordsTable: () => import('@/components/RecordsTable')
 		},
 		data: () => ({
 			pagination: {
@@ -108,7 +108,7 @@
 					{ id: 4, name: "Hora de fin", type: "time" }
 				]
 			},
-			happenings: [
+			records: [
 				{ date: '2021-04-24T04:00:00.000Z', time: '00:00', fields: [
 					{ id: 1, value: 'Primer tema de estudio' },
 					{ id: 2, value: 2 },
@@ -233,12 +233,12 @@
 		},
 		computed: {
 			totalPages() {
-				return Math.ceil(this.happenings.length/this.pagination.itemsPerPage)
+				return Math.ceil(this.records.length/this.pagination.itemsPerPage)
 			},
-			pageHappenings() {
+			pageRecords() {
 				const { currentPage, itemsPerPage } = this.pagination
 				const start = (currentPage-1) * itemsPerPage
-				return this.happenings.slice(start, start+itemsPerPage)
+				return this.records.slice(start, start+itemsPerPage)
 			}
 		},
 		methods: {

@@ -26,9 +26,9 @@ const routes = [
 		meta: { layout: 'toolbar', title: 'Hechos' }
 	},
 	{
-		path: '/hechos/:id/sucesos',
-		component: () => import('@/views/Happenings'),
-		meta: { layout: 'toolbar', title: 'Sucesos' }
+		path: '/hechos/:id/registros',
+		component: () => import('@/views/Records'),
+		meta: { layout: 'toolbar', title: 'Registros' }
 	}
 ]
 

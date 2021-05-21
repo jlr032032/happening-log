@@ -75,7 +75,7 @@
 							x-small
 							elevation="0"
 							class="primary white--text mr-1"
-							@click="showHappeningHandler(fact)"
+							@click="showRecordHandler(fact)"
 						>
 							<v-icon> mdi-calendar-check </v-icon>
 						</v-btn>
@@ -96,9 +96,9 @@
 
 		<fact-creator />
 
-		<happening-handler
-			:show.sync="happeningHandling.dialog"
-			:fact="happeningHandling.fact"
+		<record-handler
+			:show.sync="recordHandling.dialog"
+			:fact="recordHandling.fact"
 		/>
 
 	</div>
@@ -115,13 +115,13 @@
 		components: {
 			LabelSelect: () => import('@/components/LabelSelect'),
 			FactCreator: () => import('@/components/FactCreator'),
-			HappeningHandler: () => import('@/components/HappeningHandler')
+			RecordHandler: () => import('@/components/RecordHandler')
 		},
 		data: () => ({
 			newFactDialog: false,
-			happeningHandling: {
+			recordHandling: {
 				dialog: false,
-				happening: null,
+				record: null,
 				fact: null
 			},
 			filter: {
@@ -186,9 +186,9 @@
 			showNewFactDialog(value) {
 				this.newFactDialog = value
 			},
-			showHappeningHandler(fact) {
-				this.happeningHandling.fact = fact
-				this.happeningHandling.dialog = true
+			showRecordHandler(fact) {
+				this.recordHandling.fact = fact
+				this.recordHandling.dialog = true
 			}
 		}
 	}

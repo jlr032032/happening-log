@@ -33,13 +33,13 @@
 		/>
 
 		<div class="mt-7">
-			<h2 class="primary--text custom--title-2"> Últimos sucesos </h2>
-			<happenings-table
+			<h2 class="primary--text custom--title-2"> Últimos registros </h2>
+			<records-table
 				:fact="fact"
-				:happenings="happenings"
+				:records="records"
 			/>
-			<router-link :to="`/hechos/${fact.id}/sucesos`">
-				<v-btn class="mt-2 primary white--text custom--full-width"> Ver todos los sucesos </v-btn>
+			<router-link :to="`/hechos/${fact.id}/registros`">
+				<v-btn class="mt-2 primary white--text custom--full-width"> Ver todos los registros </v-btn>
 			</router-link>
 		</div>
 
@@ -69,7 +69,7 @@
 		components: {
 			LabelSelect: () => import('@/components/LabelSelect'),
 			FieldHandler: () => import('@/components/FieldHandler'),
-			HappeningsTable: () => import('@/components/HappeningsTable')
+			RecordsTable: () => import('@/components/RecordsTable')
 		},
 		data: () => ({
 			temporaryFact: {
@@ -89,7 +89,7 @@
 					{ id: 4, name: "Hora de fin", type: "time" }
 				]
 			},
-			happenings: [
+			records: [
 				{ date: '2021-05-14T04:00:00.000Z', time: '19:00', fields: [
 					{ id: 1, value: 'Quinto tema de estudio' },
 					{ id: 2, value: 2 },

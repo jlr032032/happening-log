@@ -1,8 +1,8 @@
 <template>
 	<div>
 		<v-dialog
-			:value="happeningHandlerDialog"
-			@input="hideHappeningHandlerDialog()"
+			:value="recordHandlerDialog"
+			@input="hideRecordHandlerDialog()"
 		>
 			<v-card>
 				<v-card-title class="flex-column align-start pb-0">
@@ -65,7 +65,7 @@
 							<v-col cols="6">
 								<date-input
 									:useCurrentDate="useCurrentDatetime"
-									v-model="happening_.date"
+									v-model="record_.date"
 								/>
 							</v-col>
 						</v-row>
@@ -79,7 +79,7 @@
 							<v-col cols="6">
 								<time-input
 									:useCurrentTime="useCurrentDatetime"
-									v-model="happening_.time"
+									v-model="record_.time"
 								/>
 							</v-col>
 						</v-row>
@@ -89,14 +89,14 @@
 					<v-spacer />
 					<v-btn
 						text
-						@click="hideHappeningHandlerDialog()"
+						@click="hideRecordHandlerDialog()"
 					>
 						Cancelar
 					</v-btn>
 					<v-btn
 						color="primary"
 						:disabled="disableAccept"
-						@click="hideHappeningHandlerDialog(true)"
+						@click="hideRecordHandlerDialog(true)"
 					>
 						{{ acceptText }}
 					</v-btn>
@@ -108,7 +108,7 @@
 
 <script>
 	export default {
-		name: 'HappeningHandler',
+		name: 'RecordHandler',
 		components: {
 			DynamicInput: () => import('@/components/DynamicInput'),
 			DateInput: () => import('@/components/DateInput'),
@@ -117,23 +117,23 @@
 		props: {
 			show: { type: Boolean, default: false },
 			fact: { type: Object },
-			happening: { type: Object }
+			record: { type: Object }
 		},
 		data: () => ({
-			happeningHandlerDialog: null,
+			recordHandlerDialog: null,
 			datetimeSource: 'other',
 			fact_: {},
-			happening_: {
+			record_: {
 				date: null,
 				time: null,
 				fields: []
 			}
 		}),
 		created() {
-			this.happeningHandlerDialog = this.show
+			this.recordHandlerDialog = this.show
 			this.fact_ = this.fact || {}
 			if ( this.updateMode ) {
-				this.happening_ = JSON.parse( JSON.stringify(this.happening) )
+				this.record_ = JSON.parse( JSON.stringify(this.record) )
 				this.datetimeSource = 'other'
 			} else {
 				this.datetimeSource = 'current'
@@ -143,19 +143,19 @@
 			show(newShowValue) {
 				if ( newShowValue && !this.updateMode ) {
 					this.datetimeSource = 'current'
-					this.happening_ = {
+					this.record_ = {
 						date: null,
 						time: null,
 						fields: []
 					}
 				}
-				this.happeningHandlerDialog = newShowValue
+				this.recordHandlerDialog = newShowValue
 			},
 			fact(newFactValue) {
 				this.fact_ = newFactValue || {}
 			},
-			happening(newHappeningValue) {
-				this.happening_ = newHappeningValue ? JSON.parse( JSON.stringify(this.happening) ) : {
+			record(newRecordValue) {
+				this.record_ = newRecordValue ? JSON.parse( JSON.stringify(this.record) ) : {
 					date: null,
 					time: null,
 					fields: []
@@ -164,7 +164,7 @@
 		},
 		computed: {
 			title() {
-				return this.updateMode ? 'Modificar suceso' : 'Nuevo suceso'
+				return this.updateMode ? 'Modificar registro' : 'Nuevo registro'
 			},
 			hasFields() {
 				return Boolean( Array.isArray(this.fact_.fields) && this.fact_.fields.length )
@@ -176,13 +176,13 @@
 				return this.updateMode ? 'Editar' : 'Crear'
 			},
 			updateMode() {
-				return Boolean(this.happening)
+				return Boolean(this.record)
 			},
 			wasUpdated() {
-				const { happening, happening_ } = this
+				const { record, record_ } = this
 				if ( this.updateMode ) {
-					if ( happening.date===happening_.date && happening.time===happening_.time ) {
-						let [ fields, fields_ ] = [ happening.fields || [], happening_.fields || [] ]
+					if ( record.date===record_.date && record.time===record_.time ) {
+						let [ fields, fields_ ] = [ record.fields || [], record_.fields || [] ]
 						if ( fields.length!==fields_.length ) {
 							return true
 						}
@@ -199,25 +199,25 @@
 				return false
 			},
 			disableAccept() {
-				const { date, time } = this.happening_
+				const { date, time } = this.record_
 				return this.updateMode ? !this.wasUpdated : !(date && time)
 			}
 		},
 		methods: {
-			hideHappeningHandlerDialog(save) {
-				this.happeningHandlerDialog = false
+			hideRecordHandlerDialog(save) {
+				this.recordHandlerDialog = false
 				this.$emit('update:show', false)
 				if ( save ) {
 					console.log('Request sending for saving the new data must be implemented')
 				}
 			},
 			getFieldValue(factFieldId) {
-				const found = this.happening_.fields.find( ({ id }) => factFieldId===id )
+				const found = this.record_.fields.find( ({ id }) => factFieldId===id )
 				return found ? found.value : null
 			},
 			setFieldValue(factFieldId, value) {
-				const happeningField = this.happening_.fields.find( ({ id }) => factFieldId===id )
-				happeningField ? happeningField.value = value : this.happening_.fields.push({ id: factFieldId, value })
+				const recordField = this.record_.fields.find( ({ id }) => factFieldId===id )
+				recordField ? recordField.value = value : this.record_.fields.push({ id: factFieldId, value })
 			}
 		}
 	}
