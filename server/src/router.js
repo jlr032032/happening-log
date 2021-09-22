@@ -1,6 +1,7 @@
 const express = require('express')
 const authorization = require('./middleware/Authorization')
 const UserController = require('./controllers/UserController')
+const LabelController = require('./controllers/LabelController')
 
 // Public access routes
 
@@ -13,5 +14,7 @@ publicRouter.post('/auth/refreshing', UserController.refreshToken)
 
 const privateRouter = express.Router()
 privateRouter.use(authorization)
+
+privateRouter.post('/labels', LabelController.create)
 
 module.exports = { publicRouter, privateRouter }
