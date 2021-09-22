@@ -28,6 +28,22 @@ const LabelController = {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
 		}
+	},
+	
+	async readAll(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate().error
+			if ( badBody ) {
+				response.status(400).json({ message: badBody.details[0].message })
+			} else {
+				let labels = await Label.readAll(request.userId)
+				labels = labels.map( label => label.clientFields({ remove: ['userId'] }) )
+				response.status(200).json(labels)
+			}
+		} catch ( error ) {
+			next(error)
+		}
 	}
 
 }

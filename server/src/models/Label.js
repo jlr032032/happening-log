@@ -47,6 +47,10 @@ class Label {
 		}
 	}
 
+	async readAll(userId) {
+		return await LabelOdm.find({ userId })
+	}
+
 }
 
 const internal = {

@@ -16,5 +16,6 @@ const privateRouter = express.Router()
 privateRouter.use(authorization)
 
 privateRouter.post('/labels', LabelController.create)
+privateRouter.get('/labels', LabelController.readAll)
 
 module.exports = { publicRouter, privateRouter }
