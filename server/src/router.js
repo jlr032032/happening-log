@@ -6,5 +6,6 @@ const UserController = require('./controllers/UserController')
 const publicRouter = express.Router()
 
 publicRouter.post('/auth/token', UserController.generateToken)
+publicRouter.post('/auth/refreshing', UserController.refreshToken)
 
 module.exports = { publicRouter }

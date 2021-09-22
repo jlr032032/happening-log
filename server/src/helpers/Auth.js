@@ -1,6 +1,7 @@
 const util = require('util')
 const jwt = require('jsonwebtoken')
 const jwtSign = util.promisify(jwt.sign)
+const jwtVerify = util.promisify(jwt.verify)
 
 const auth = {
 
@@ -13,6 +14,12 @@ const auth = {
 		})
 	},
 
+	getAccessToken(request) {
+		const header = request.headers.authorization
+		const token = header && /^Bearer [a-zA-Z0-9-._˜+/]+=*$/.test(header) && header.split(' ')[1]
+		return token || null
+	},
+
 	async refreshToken(ip, userId) {
 		return await this.sign({
 			userId,
@@ -23,6 +30,14 @@ const auth = {
 
 	async sign(payload) {
 		return await jwtSign(payload, process.env.JWT_SYMMETRIC_KEY)
+	},
+
+	async tokenData(token) {
+		try {
+			return await jwtVerify(token, process.env.JWT_SYMMETRIC_KEY)
+		} catch (error) {
+			return null
+		}
 	}
 
 }
