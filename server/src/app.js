@@ -1,12 +1,14 @@
 require('dotenv').config()
 const express = require('express')
 const router = require('./router')
+const errorHandler = require('./middleware/ErrorHandler')
 const dbConnectionHandler = require('./dbConnectionHandler')
 
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(router)
+app.use(errorHandler)
 
 const port = process.env.PORT
 dbConnectionHandler.connect()
