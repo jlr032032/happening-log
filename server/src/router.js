@@ -1,3 +1,7 @@
-const router = require('express').Router()
+const express = require('express')
 
-module.exports = router
+// Public access routes
+
+const publicRouter = express.Router()
+
+module.exports = { publicRouter }
