@@ -19,5 +19,6 @@ privateRouter.use(authorization)
 privateRouter.post('/labels', LabelController.create)
 privateRouter.get('/labels', LabelController.readAll)
 privateRouter.put('/labels/:labelId', uriIdsCheck, LabelController.update)
+privateRouter.delete('/labels/:labelId', uriIdsCheck, LabelController.delete)
 
 module.exports = { publicRouter, privateRouter }

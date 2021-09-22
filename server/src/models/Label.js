@@ -47,6 +47,25 @@ class Label {
 		}
 	}
 
+	async delete(userId, labelId) {
+		const isRoot = labelId.split('.').length===1
+		if ( isRoot ) {
+			const deleted = await LabelOdm.findOneAndDelete({ _id: labelId, userId })
+			deleted || internal.error('INVALID_LABEL_ID', labelId)
+			let deletedIds = []
+			internal.descendantsIds(deleted, deletedIds)
+			return { deleted, deletedIds }
+		} else {
+			const found = await internal.find({ labelId, userId })
+			found.notFound && internal.error('INVALID_LABEL_ID', labelId)
+			internal.removeSubLabel({ parentLabel: found.parent, index: found.index })
+			await found.root.save()
+			let deletedIds = []
+			internal.descendantsIds(found.label, deletedIds)
+			return { deleted: found.label, deletedIds }
+		}
+	}
+
 	async readAll(userId) {
 		return await LabelOdm.find({ userId })
 	}
@@ -158,6 +177,13 @@ const internal = {
 			}
 		}
 		return { label, parent, index }
+	},
+
+	descendantsIds(label, ids) {
+		ids.push(label._id)
+		Array.isArray(label.subLabels) && label.subLabels.forEach( subLabel => {
+			this.descendantsIds(subLabel, ids)
+		})
 	},
 
 	error(code, labelId) {
