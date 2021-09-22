@@ -1,5 +1,6 @@
 const express = require('express')
 const authorization = require('./middleware/Authorization')
+const uriIdsCheck = require('./middleware/UriIdsCheck')
 const UserController = require('./controllers/UserController')
 const LabelController = require('./controllers/LabelController')
 
