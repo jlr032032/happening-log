@@ -41,7 +41,8 @@ const LabelController = {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
 				const { userId, params: { labelId } } = request
-				const { deleted } = await Label.delete(userId, labelId)
+				const { deleted, deletedIds } = await Label.delete(userId, labelId)
+				await Happening.deleteLabels(userId, deletedIds)
 				response.status(200).json(deleted.clientFields({ remove: ['userId'] }))
 			}
 		} catch (error) {

@@ -41,6 +41,25 @@ class Happening {
 		return deleted || internal.error('INVALID_HAPPENING_ID', happeningId)
 	}
 
+	async deleteLabels(userId, deletedIds) {
+		const queryFilter = { userId, 'labels._id': { $in: deletedIds } }
+		const happenings = await HappeningOdm.find(queryFilter)
+		if ( happenings ) {
+			deletedIds.forEach( id => {
+				happenings.forEach( happening => {
+					const index = happening.labels.findIndex( label => label._id===id )
+					index>-1 && happening.labels.splice(index, 1)
+				})
+			})
+			let deletions = []
+			happenings.forEach( happening => {
+				happening.labels.length || ( happening.labels = undefined )
+				deletions.push(happening.save())
+			})
+			await Promise.all(deletions)
+		}
+	}
+
 	async readAll(userId) {
 		return await HappeningOdm.find({ userId })
 	}
