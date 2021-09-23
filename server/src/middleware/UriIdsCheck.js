@@ -1,8 +1,10 @@
 const Joi = require('joi')
 const labelIdSchema = Joi.string().pattern(/^[\da-f]{24}(.\d+)*$/)
+const hexIdSchema = Joi.string().hex().length(24)
 
 const idsSchemas = Joi.object({
-	labelId: labelIdSchema.rule({ message: 'No such label with id {#value}' })
+	labelId: labelIdSchema.rule({ message: 'No such label with id {#value}' }),
+	happeningId: hexIdSchema.rule({ message: 'No such happening with id {#value}' })
 })
 
 function UriIdsCheck(request, response, next) {
