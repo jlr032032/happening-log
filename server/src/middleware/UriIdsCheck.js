@@ -2,7 +2,7 @@ const Joi = require('joi')
 const labelIdSchema = Joi.string().pattern(/^[\da-f]{24}(.\d+)*$/)
 
 const idsSchemas = Joi.object({
-	labelId: labelIdSchema.rule({ message: 'No label with such id' })
+	labelId: labelIdSchema.rule({ message: 'No such label with id {#value}' })
 })
 
 function UriIdsCheck(request, response, next) {
