@@ -34,6 +34,23 @@ const HappeningController = {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
 		}
+	},
+	
+	async readAll(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				response.status(400).json({ message: badBody.details[0].message })
+			} else {
+				let happenings = await Happening.readAll(request.userId)
+				happenings = happenings.map( happening => happening.clientFields({ remove: ['userId'] }) )
+				response.status(200).json(happenings)
+			}
+		} catch ( error ) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
 	}
 
 }

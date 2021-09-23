@@ -36,6 +36,10 @@ class Happening {
 		return await created.save()
 	}
 
+	async readAll(userId) {
+		return await HappeningOdm.find({ userId })
+	}
+
 }
 
 module.exports = new Happening()
