@@ -58,6 +58,23 @@ class Happening {
 		return updated || internal.error('INVALID_HAPPENING_ID', happeningId)
 	}
 
+	async updateLabels(userId, updated) {
+		const ids = updated.map( data => data._id )
+		const queryFilter = { userId, 'labels._id': { $in: ids } }
+		const happenings = await HappeningOdm.find(queryFilter)
+		if ( happenings ) {
+			updated.forEach( ({ _id, newData }) => {
+				newData = newData.clientFields({ formatId: false, remove: ['userId', 'subLabels'] })
+				happenings.forEach( happening => {
+					let label = happening.labels.find( label => _id===label._id )
+					label && label.set(newData)
+				})
+			})
+			const changes = happenings.map( happening => happening.save() )
+			await Promise.all(changes)
+		}
+	}
+
 }
 
 const internal = {

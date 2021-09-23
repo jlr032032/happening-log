@@ -1,6 +1,7 @@
 const Joi = require('joi')
 const { string } = Joi.types()
 const Label = require('../models/Label')
+const Happening = require('../models/Happening')
 
 const errorStatus = {
 	INVALID_LABEL_ID: 404,
@@ -81,8 +82,9 @@ const LabelController = {
 				response.status(code).json({ message })
 			} else {
 				const { userId, body, params: { labelId } } = request
-				const [ updated ] = await Label.update(userId, labelId, body)
-				label = updated.newData.clientFields({ remove: ['userId'] })
+				const updated = await Label.update(userId, labelId, body)
+				await Happening.updateLabels(userId, updated)
+				label = updated[0].newData.clientFields({ remove: ['userId'] })
 				response.status(200).json(label)
 			}
 		} catch ( error ) {

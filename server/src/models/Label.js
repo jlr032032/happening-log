@@ -274,7 +274,7 @@ const internal = {
 		Array.isArray(label.subLabels) && label.subLabels.forEach( (subLabel, index) => {
 			const oldSubId = subLabel._id
 			subLabel._id = `${label._id}.${index+1}`
-			updated.push({ _id: oldSubId, newData: { _id: subLabel._id } })
+			updated.push({ _id: oldSubId, newData: subLabel })
 			this.updateSubIds(subLabel, updated)
 		})
 	}
