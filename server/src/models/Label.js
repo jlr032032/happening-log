@@ -66,6 +66,27 @@ class Label {
 		}
 	}
 
+	async findMany(labelsIds, userId) {
+		let found = []
+		if ( !labelsIds.length ) {
+			return []
+		}
+		labelsIds = labelsIds.map( id => {
+			const splitId = id.split('.')
+			return { whole: id, root: splitId[0], split: splitId }
+		})
+		const rootsIds = labelsIds
+			.map( id => id.root )
+			.filter( (id, index, ids) => ids.indexOf(id)===index )
+		const roots = await LabelOdm.find({ _id: { $in: rootsIds }, userId })
+		for ( let id of labelsIds ) {
+			let root = roots.find( root => root._id===id.root )
+			let label = root && internal.descendant(root, id.split).label
+			label ? found.push(label) : internal.error('INVALID_LABEL_ID', id.whole)
+		}
+		return found
+	}
+
 	async readAll(userId) {
 		return await LabelOdm.find({ userId })
 	}

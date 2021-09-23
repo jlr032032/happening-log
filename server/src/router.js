@@ -3,6 +3,7 @@ const authorization = require('./middleware/Authorization')
 const uriIdsCheck = require('./middleware/UriIdsCheck')
 const UserController = require('./controllers/UserController')
 const LabelController = require('./controllers/LabelController')
+const HappeningController = require('./controllers/HappeningController')
 
 // Public access routes
 
@@ -20,5 +21,7 @@ privateRouter.post('/labels', LabelController.create)
 privateRouter.get('/labels', LabelController.readAll)
 privateRouter.put('/labels/:labelId', uriIdsCheck, LabelController.update)
 privateRouter.delete('/labels/:labelId', uriIdsCheck, LabelController.delete)
+
+privateRouter.post('/happenings', HappeningController.create)
 
 module.exports = { publicRouter, privateRouter }
