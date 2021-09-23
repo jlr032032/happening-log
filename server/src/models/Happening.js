@@ -36,6 +36,11 @@ class Happening {
 		return await created.save()
 	}
 
+	async delete(userId, happeningId) {
+		const deleted = await HappeningOdm.findOneAndDelete({ _id: happeningId, userId })
+		return deleted || internal.error('INVALID_HAPPENING_ID', happeningId)
+	}
+
 	async readAll(userId) {
 		return await HappeningOdm.find({ userId })
 	}

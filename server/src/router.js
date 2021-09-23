@@ -25,5 +25,6 @@ privateRouter.delete('/labels/:labelId', uriIdsCheck, LabelController.delete)
 privateRouter.post('/happenings', HappeningController.create)
 privateRouter.get('/happenings', HappeningController.readAll)
 privateRouter.put('/happenings/:happeningId', uriIdsCheck, HappeningController.update)
+privateRouter.delete('/happenings/:happeningId', uriIdsCheck, HappeningController.delete)
 
 module.exports = { publicRouter, privateRouter }
