@@ -15,7 +15,7 @@ const UserController = {
 				email: string.email().required(),
 				password: string.required()
 			})
-			const badBody = requestSchema.validate().error
+			const badBody = requestSchema.validate(request.body).error
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
@@ -36,7 +36,7 @@ const UserController = {
 			const requestSchema = Joi.object({
 				refreshToken: string.pattern(/^[a-zA-Z0-9-._˜+/]+=*$/).required(),
 			})
-			const badBody = requestSchema.validate().error
+			const badBody = requestSchema.validate(request.body).error
 			if ( badBody ) {
 				const { path, message } = badBody.details[0]
 				const code = path[0]==='refreshToken' ? 401 : 400

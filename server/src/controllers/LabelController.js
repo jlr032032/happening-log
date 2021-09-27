@@ -36,7 +36,7 @@ const LabelController = {
 	async delete(request, response, next) {
 		try {
 			const requestSchema = Joi.object({})
-			const badBody = requestSchema.validate().error
+			const badBody = requestSchema.validate(request.body).error
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
@@ -54,7 +54,7 @@ const LabelController = {
 	async readAll(request, response, next) {
 		try {
 			const requestSchema = Joi.object({})
-			const badBody = requestSchema.validate().error
+			const badBody = requestSchema.validate(request.body).error
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
