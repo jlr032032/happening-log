@@ -7,7 +7,8 @@ const { string, array, any } = Joi.types()
 const errorStatus = {
 	INVALID_HAPPENING_ID: 422,
 	INVALID_FIELD: 400,
-	INVALID_FIELD_TYPE: 400
+	INVALID_FIELD_TYPE: 400,
+	INVALID_RECORD_ID: 404
 }
 
 const RecordController = {
@@ -52,6 +53,36 @@ const RecordController = {
 				let records = await Record.readByHappeningId(userId, happeningId)
 				records = records.map( record => record.clientFields({ remove: ['userId'] }))
 				response.status(200).json(records)
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
+	async update(request, response, next) {
+		try {
+			const { happeningId, recordId } = request.params
+			const requestSchema = Joi.object({
+				id: string.valid(recordId).messages({ 'any.only': 'Record ids in request URI and body must match' }),
+				happeningId: string.valid(happeningId)
+					.messages({ 'any.only': 'Happening ids in request URI and body must match' }),
+				fields: array.min(1).items( Joi.object({
+					name: string.required(),
+					value: any.required()
+				})),
+			})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { path, message } = badBody.details[0]
+				const code = path[0]==='happeningId' ? 422 : 400
+				response.status(code).json({ message })
+			} else {
+				let { userId, body: { fields } } = request
+				const happening = await Happening.find(userId, happeningId)
+				fields = internal.castData(happening, fields)
+				const record = await Record.update(userId, happening, recordId, fields)
+				response.status(200).json(record.clientFields({ remove: ['userId'] }))
 			}
 		} catch (error) {
 			const code = errorStatus[error.code]
