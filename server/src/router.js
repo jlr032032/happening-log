@@ -29,5 +29,6 @@ privateRouter.put('/happenings/:happeningId', uriIdsCheck, HappeningController.u
 privateRouter.delete('/happenings/:happeningId', uriIdsCheck, HappeningController.delete)
 
 privateRouter.post('/happenings/:happeningId/records', RecordController.create)
+privateRouter.get('/happenings/:happeningId/records', RecordController.readByHappeningId)
 
 module.exports = { publicRouter, privateRouter }

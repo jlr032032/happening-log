@@ -21,6 +21,10 @@ class Record {
 		return await record.save()
 	}
 
+	async readByHappeningId(userId, happeningId) {
+		return await RecordOdm.find({ userId, happeningId })
+	}
+
 }
 
 const internal = {
