@@ -19,7 +19,7 @@ const HappeningController = {
 				),
 				fields: array.min(1).items( Joi.object({
 					name: string.required(),
-					type: string.required().valid('text', 'number', 'date', 'time')
+					type: string.required().valid('date', 'datetime', 'number', 'text')
 				}))
 			})
 			const badBody = requestSchema.validate(request.body).error
@@ -87,7 +87,7 @@ const HappeningController = {
 				),
 				fields: array.min(1).items( Joi.object({
 					name: string.required(),
-					type: string.required().valid('text', 'number', 'date', 'time')
+					type: string.required().valid('date', 'datetime', 'number', 'text')
 				}))
 			})
 			const badBody = requestSchema.validate(request.body).error
