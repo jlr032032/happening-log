@@ -60,6 +60,12 @@ class Happening {
 		}
 	}
 
+	async find(userId, happeningId) {
+		const [ happening ] = await HappeningOdm.find({ _id: happeningId, userId })
+		happening || internal.error('INVALID_HAPPENING_ID', happeningId)
+		return happening
+	}
+
 	async readAll(userId) {
 		return await HappeningOdm.find({ userId })
 	}
