@@ -42,6 +42,23 @@ const RecordController = {
 		}
 	},
 
+	async delete(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				response.status(400).json({ message: badBody.details[0].message })
+			} else {
+				const { userId, params: { recordId } } = request
+				const deleted = await Record.delete(userId, recordId)
+				response.status(200).json(deleted.clientFields({ remove: ['userId'] }))
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
 	async readByHappeningId(request, response, next) {
 		try {
 			const requestSchema = Joi.object({})

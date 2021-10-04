@@ -21,6 +21,12 @@ class Record {
 		return await record.save()
 	}
 
+	async delete(userId, recordId) {
+		const deleted = await RecordOdm.findOneAndDelete({ _id: recordId, userId })
+		deleted || internal.error('INVALID_RECORD_ID', recordId)
+		return deleted
+	}
+
 	async readByHappeningId(userId, happeningId) {
 		return await RecordOdm.find({ userId, happeningId })
 	}
