@@ -38,7 +38,7 @@ class Happening {
 
 	async delete(userId, happeningId) {
 		const deleted = await HappeningOdm.findOneAndDelete({ _id: happeningId, userId })
-		return deleted || internal.error('INVALID_HAPPENING_ID', happeningId)
+		return deleted || internal.error({ code: 'INVALID_HAPPENING_ID', happeningId })
 	}
 
 	async deleteLabels(userId, deletedIds) {
@@ -62,7 +62,7 @@ class Happening {
 
 	async find(userId, happeningId) {
 		const [ happening ] = await HappeningOdm.find({ _id: happeningId, userId })
-		happening || internal.error('INVALID_HAPPENING_ID', happeningId)
+		happening || internal.error({ code: 'INVALID_HAPPENING_ID', happeningId })
 		return happening
 	}
 
@@ -80,7 +80,7 @@ class Happening {
 		happeningData.userId = userId
 		const filter = { _id: happeningId, userId }
 		const updated = await HappeningOdm.findOneAndReplace(filter, happeningData, { new: true })
-		return updated || internal.error('INVALID_HAPPENING_ID', happeningId)
+		return updated || internal.error({ code: 'INVALID_HAPPENING_ID', happeningId })
 	}
 
 	async updateLabels(userId, updated) {
@@ -104,7 +104,8 @@ class Happening {
 
 const internal = {
 
-	error(code, happeningId) {
+	error(options) {
+		const { code, happeningId } = options
 		const message = {
 			INVALID_HAPPENING_ID: `No such happening with id ${happeningId}`
 		}
