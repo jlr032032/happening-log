@@ -2,7 +2,7 @@ const Joi = require('joi')
 const Record = require('../models/Record')
 const Happening = require('../models/Happening')
 const dataTypes = require('../helpers/DataTypes')
-const { string, array, any } = Joi.types()
+const { number, string, array, any } = Joi.types()
 
 const errorStatus = {
 	INVALID_HAPPENING_ID: 422,
@@ -20,7 +20,7 @@ const RecordController = {
 				happeningId: string.valid(happeningId)
 					.messages({ 'any.only': 'Happening ids in request URI and body must match' }),
 				fields: array.min(1).items({
-					name: string.required(),
+					id: number.required(),
 					value: any.required()
 				})
 			})
@@ -85,7 +85,7 @@ const RecordController = {
 				happeningId: string.valid(happeningId)
 					.messages({ 'any.only': 'Happening ids in request URI and body must match' }),
 				fields: array.min(1).items( Joi.object({
-					name: string.required(),
+					id: number.required(),
 					value: any.required()
 				})),
 			})
@@ -115,8 +115,8 @@ const internal = {
 		const { fields } = happening
 		return recordData
 			.map( data => {
-				const field = fields.find( field => data.name===field.name )
-				field || this.error({ code: 'INVALID_FIELD', field: data.name, happeningId: happening.id })
+				const field = fields.find( field => data.id===field._id )
+				field || this.error({ code: 'INVALID_FIELD', field: data.id, happeningId: happening._id })
 				const { value, error } = dataTypes.cast(data.value, field.type)
 				error && this.error({ code: 'INVALID_FIELD_TYPE', field: data.name, subMessage: error })
 				data.value = value
@@ -127,10 +127,10 @@ const internal = {
 			.reverse()
 	},
 
-	error({code, field, happeningId, subMessage}) {
+	error({code, fieldId, happeningId, subMessage}) {
 		const message = {
-			INVALID_FIELD: `Happening with id ${happeningId} doesn't accept field '${field}'`,
-			INVALID_FIELD_TYPE: `"${field}" field value error: ${subMessage}`
+			INVALID_FIELD: `Happening with id ${happeningId} doesn't accept field with id ${fieldId}`,
+			INVALID_FIELD_TYPE: `Value error of field with id ${fieldId}: ${subMessage}`
 		}
 		let error = { code, message: message[code] }
 		Error.captureStackTrace(error)

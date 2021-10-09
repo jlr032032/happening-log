@@ -6,18 +6,25 @@ let RecordOdm
 class Record {
 
 	constructor() {
+		let fieldSchema = {
+			_id: { type: Number, required: true },
+			value: { type: mongoose.Mixed, required: true }
+		}
+		fieldSchema = new mongoose.Schema(fieldSchema, { versionKey: false })
+		fieldSchema.plugin(clientFieldsPlugin)
 		let recordSchema = {
 			userId: { type: mongoose.ObjectId, required: true },
 			happeningId: { type: mongoose.ObjectId, required: true },
-			fields: Array
+			fields: { type: [ fieldSchema ] }
 		}
 		recordSchema = new mongoose.Schema(recordSchema, { versionKey: false })
-		recordSchema.plugin(clientFieldsPlugin)
+		recordSchema.plugin(clientFieldsPlugin, { nestedDocumentFields: ['fields'] })
 		RecordOdm = mongoose.model('Record', recordSchema)
 	}
 
 	async create(userId, happening, recordData) {
-		const record = new RecordOdm({ userId, happeningId: happening._id, fields: recordData })
+		const fields = recordData.map( field => ({ _id: field.id, ...field }) )
+		const record = new RecordOdm({ userId, happeningId: happening._id, fields })
 		return await record.save()
 	}
 
@@ -34,7 +41,8 @@ class Record {
 	async update(userId, happening, recordId, recordData) {
 		const deleted = await RecordOdm.findOneAndDelete({ _id: recordId, userId })
 		deleted || internal.error('INVALID_RECORD_ID', recordId)
-		const record = new RecordOdm({ _id: recordId, userId, happeningId: happening._id, fields: recordData })
+		const fields = recordData.map( field => ({ _id: field.id, ...field }) )
+		const record = new RecordOdm({ _id: recordId, userId, happeningId: happening._id, fields })
 		return await record.save()
 	}
 

@@ -1,11 +1,12 @@
 const Joi = require('joi')
-const { string, array } = Joi.types()
+const { string, array, number } = Joi.types()
 const Happening = require('../models/Happening')
 const Label = require('../models/Label')
 
 const errorStatus = {
 	INVALID_HAPPENING_ID: 404,
-	INVALID_LABEL_ID: 422
+	INVALID_LABEL_ID: 422,
+	INVALID_FIELD_ID: 422
 }
 
 const HappeningController = {
@@ -86,6 +87,7 @@ const HappeningController = {
 					string.pattern(/^[\da-f]{24}(.\d+)*$/).message('No such label with id {#value}')
 				),
 				fields: array.min(1).items( Joi.object({
+					id: number,
 					name: string.required(),
 					type: string.required().valid('date', 'datetime', 'number', 'text')
 				}))

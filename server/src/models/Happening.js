@@ -13,19 +13,27 @@ class Happening {
 		}
 		labelSchema = new mongoose.Schema(labelSchema, { versionKey: false })
 		labelSchema.plugin(clientFieldsPlugin)
+		let fieldSchema = {
+			_id: { type: Number, required: true },
+			name: { type: String, required: true },
+			type: { type: String, enum: ['date', 'datetime', 'number', 'text'], required: true }
+		}
+		fieldSchema = new mongoose.Schema(fieldSchema, { versionKey: false })
+		fieldSchema.plugin(clientFieldsPlugin)
 		let happeningSchema = {
 			userId: { type: mongoose.ObjectId, required: true },
 			name: { type: String, required: true },
 			labels: { type: [ labelSchema ], default: undefined },
-			fields: { type: Array, default: undefined }
+			fields: { type: [ fieldSchema ], default: undefined }
 		}
 		happeningSchema = new mongoose.Schema(happeningSchema, { versionKey: false })
-		happeningSchema.plugin(clientFieldsPlugin, { nestedDocumentFields: ['labels'] })
+		happeningSchema.plugin(clientFieldsPlugin, { nestedDocumentFields: ['labels', 'fields'] })
 		HappeningOdm = mongoose.model('Happening', happeningSchema)
 	}
 
 	async create(userId, happeningData) {
-		const { labels } = happeningData
+		const { fields, labels } = happeningData
+		happeningData.fields = fields.map( (field, index) => ({ _id: index+1, ...field }) )
 		if ( labels ) {
 			happeningData.labels = labels
 				.filter( (label, index, labels) => index===labels.indexOf(label) )
