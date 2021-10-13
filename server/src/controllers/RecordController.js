@@ -118,7 +118,7 @@ const internal = {
 				const field = fields.find( field => data.id===field._id )
 				field || this.error({ code: 'INVALID_FIELD', field: data.id, happeningId: happening._id })
 				const { value, error } = dataTypes.cast(data.value, field.type)
-				error && this.error({ code: 'INVALID_FIELD_TYPE', field: data.name, subMessage: error })
+				error && this.error({ code: 'INVALID_FIELD_TYPE', fieldId: field._id, subMessage: error })
 				data.value = value
 				return data
 			})
