@@ -8,7 +8,8 @@ const dbConnectionHandler = {
 		const connectionString = process.env.DB_CONN_STRING
 		const connectionOptions = {
 			useUnifiedTopology: true,
-			useNewUrlParser: true
+			useNewUrlParser: true,
+			useCreateIndex: true
 		}
 		await mongoose.connect(connectionString, connectionOptions)
 	},

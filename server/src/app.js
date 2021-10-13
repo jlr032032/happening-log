@@ -1,13 +1,15 @@
+require('dotenv').config()
 const express = require('express')
-const router = require('./router')
-const app = express()
-const dotenv = require('dotenv')
+const { publicRouter, privateRouter } = require('./router')
+const errorHandler = require('./middleware/ErrorHandler')
 const dbConnectionHandler = require('./dbConnectionHandler')
 
-dotenv.config()
+const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(router)
+app.use(publicRouter)
+app.use(privateRouter)
+app.use(errorHandler)
 
 const port = process.env.PORT
 dbConnectionHandler.connect()
