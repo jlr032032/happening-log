@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const clientFieldsPlugin = require('./plugins/ClientFields')
+const dataTypes = require('../helpers/DataTypes')
 
 let RecordOdm
 
@@ -44,6 +45,29 @@ class Record {
 		const fields = recordData.map( field => ({ _id: field.id, ...field }) )
 		const record = new RecordOdm({ _id: recordId, userId, happeningId: happening._id, fields })
 		return await record.save()
+	}
+
+	async updateFields(userId, happeningId, updates) {
+		let records = await RecordOdm.find({ userId, happeningId })
+		let changes = []
+		records.forEach( record => {
+			const oldFields = record.fields
+			let updatedFields = []
+			updates.forEach( ({ old, latest }) => {
+				let found = oldFields.find( ({ _id }) => latest._id===_id )
+				if ( found ) {
+					found.value = dataTypes.changeType(found.value, old.type, latest.type)
+					found.value && updatedFields.push(found)
+				}
+			})
+			if ( updatedFields.length ) {
+				record.fields = updatedFields
+				changes.push(record.save())
+			} else {
+				changes.push(RecordOdm.findOneAndDelete({ _id: record._id }))
+			}
+		})
+		await Promise.all(changes)
 	}
 
 }

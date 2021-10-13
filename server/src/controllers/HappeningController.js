@@ -2,11 +2,13 @@ const Joi = require('joi')
 const { string, array, number } = Joi.types()
 const Happening = require('../models/Happening')
 const Label = require('../models/Label')
+const Record = require('../models/Record')
 
 const errorStatus = {
 	INVALID_HAPPENING_ID: 404,
 	INVALID_LABEL_ID: 422,
-	INVALID_FIELD_ID: 422
+	INVALID_FIELD_ID: 422,
+	INVALID_HAPPENING_ID: 422
 }
 
 const HappeningController = {
@@ -100,8 +102,15 @@ const HappeningController = {
 			} else {
 				const { userId, body, body: { labelsIds } } = request
 				labelsIds && ( body.labels = await Label.findMany(labelsIds, userId) )
-				const updated = await Happening.update(userId, happeningId, body)
-				response.status(200).json(updated.clientFields({ remove: ['userId'] }))
+				const { happening: updated, fields, errors } = await Happening.update(userId, happeningId, body)
+				await Record.updateFields(userId, happeningId, fields)
+				if ( errors ) {
+					let responseBody = [ { status: 200, happening: updated.clientFields({ remove: ['userId'] }) } ]
+					errors.map( error => responseBody.push({ status: errorStatus[error.code], message: error.message }) )
+					response.status(207).json(responseBody)
+				} else {
+					response.status(200).json(updated.clientFields({ remove: ['userId'] }))
+				}
 			}
 		} catch ( error ) {
 			const code = errorStatus[error.code]

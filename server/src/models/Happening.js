@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const dataTypes = require('../helpers/dataTypes')
 const clientFieldsPlugin = require('./plugins/ClientFields')
 
 let HappeningOdm
@@ -79,16 +80,23 @@ class Happening {
 	}
 
 	async update(userId, happeningId, happeningData) {
-		const { labels } = happeningData
+		const filter = { _id: happeningId, userId }
+		const oldHappening = await HappeningOdm.findOne(filter)
+		const oldFields = oldHappening.fields
+		const { labels, fields: newFields } = happeningData
+		const fieldUpdates = internal.updateFields(newFields, oldFields, happeningId)
+		happeningData.fields = fieldUpdates.fields
 		if ( labels ) {
 			happeningData.labels = labels
 				.filter( (label, index, labels) => index===labels.indexOf(label) )
 				.map( label => label.clientFields({ formatId: false, remove: ['userId', 'subLabels'] }) )
 		}
 		happeningData.userId = userId
-		const filter = { _id: happeningId, userId }
-		const updated = await HappeningOdm.findOneAndReplace(filter, happeningData, { new: true })
-		return updated || internal.error({ code: 'INVALID_HAPPENING_ID', happeningId })
+		const happening = await HappeningOdm.findOneAndReplace(filter, happeningData, { new: true })
+		happening || internal.error({ code: 'INVALID_HAPPENING_ID', happeningId })
+		let returnValue = { happening, fields: fieldUpdates.updated }
+		fieldUpdates.errors && ( returnValue.errors = fieldUpdates.errors )
+		return returnValue
 	}
 
 	async updateLabels(userId, updated) {
@@ -121,6 +129,37 @@ const internal = {
 		Error.captureStackTrace(error)
 		Object.defineProperty(error, 'stack', { enumerable: true })
 		throw error
+	},
+
+	updateFields(newFields, oldFields, happeningId) {
+		oldFields || ( oldFields = [] )
+		let newId = 1
+		let updated = []
+		let errors = []
+		oldFields.forEach( ({ _id }) => _id>=newId && ( newId = _id+1 ) )
+		let fields = []
+		for ( let newField of newFields ) {
+			const fieldExists = newField.id
+			if ( fieldExists ) {
+				const oldField = oldFields.find( ({ _id }) => newField.id===_id )
+				if ( oldField ) {
+					newField._id = newField.id
+					delete newField.id
+					dataTypes.equals(oldField.toObject(), newField) || updated.push({ old: oldField, latest: newField })
+					fields.push(newField)
+				} else {
+					errors.push({
+						code: 'INVALID_FIELD_ID',
+						message: `No such field with id ${newField.id} in happening with id ${happeningId}`
+					})
+				}
+			} else {
+				newField._id = newId
+				newId++
+				fields.push(newField)
+			}
+		}
+		return errors.length ? { fields, updated, errors } : { fields, updated }
 	}
 
 }

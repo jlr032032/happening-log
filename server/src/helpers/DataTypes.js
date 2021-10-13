@@ -29,6 +29,50 @@ const DataTypes = {
 		} catch ( error ) {
 			return { error }
 		}
+	},
+	
+	changeType(value, oldType, newType) {
+		if ( oldType===newType ) {
+			return value
+		}
+		switch ( newType ) {
+			case 'date':
+			case 'datetime':
+				return ['date', 'datetime'].includes(oldType) ? value : null
+			case 'number':
+				value = Number(value)
+				return Number.isNaN(value) ? null : value
+			case 'text':
+				return oldType==='number' ? String(value) : null
+			default:
+				internal.error(`Invalid type "${newType}"`)
+		}
+	},
+
+	equals(a, b) {
+		const type = typeof a
+		if ( type === typeof b ) {
+			switch ( type ) {
+				case 'string':
+				case 'number':
+					return a===b
+				case 'object':
+					a = Object.entries(a).sort( (a,b) => a[0]>b[0] ? 1 : -1 )
+					b = Object.entries(b).sort( (a,b) => a[0]>b[0] ? 1 : -1 )
+					if ( a.length===b.length ) {
+						for ( let i = 0; i<a.length; i++ ) {
+							const [ aProp, aValue ] = a[i]
+							const [ bProp, bValue ] = b[i]
+							if ( aProp!==bProp || !this.equals(aValue, bValue) ) {
+								return false
+							}
+						}
+						return true
+					}
+					return false
+			}
+		}
+		return false
 	}
 
 }
