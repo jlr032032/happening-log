@@ -21,8 +21,8 @@ const UserController = {
 			} else {
 				const { ip, body: { email, password } } = request
 				let user = await User.findByCredentials(email, password)
-				const accessToken = await auth.accessToken(request.ip, user._id)
-				const refreshToken = await auth.refreshToken(request.ip, user._id)
+				const accessToken = await auth.accessToken(ip, user._id)
+				const refreshToken = await auth.refreshToken(ip, user._id)
 				response.status(200).json({ accessToken, refreshToken })
 			}
 		} catch ( error ) {
