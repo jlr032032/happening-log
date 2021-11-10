@@ -23,7 +23,12 @@ const UserController = {
 				let user = await User.findByCredentials(email, password)
 				const accessToken = await auth.accessToken(ip, user._id)
 				const refreshToken = await auth.refreshToken(ip, user._id)
-				response.status(200).json({ accessToken, refreshToken })
+				const authCookiesOptions = { httpOnly: true, secure: false, sameSite: 'Strict' }
+				response
+					.status(204)
+					.cookie('accessToken', accessToken, authCookiesOptions)
+					.cookie('refreshToken', refreshToken, authCookiesOptions)
+					.end()
 			}
 		} catch ( error ) {
 			const code = errorStatus[error.code]
@@ -33,26 +38,25 @@ const UserController = {
 
 	async refreshToken(request, response, next) {
 		try {
-			const requestSchema = Joi.object({
-				refreshToken: string.pattern(/^[a-zA-Z0-9-._˜+/]+=*$/).required(),
-			})
+			const requestSchema = Joi.object({})
 			const badBody = requestSchema.validate(request.body).error
 			if ( badBody ) {
-				const { path, message } = badBody.details[0]
-				const code = path[0]==='refreshToken' ? 401 : 400
-				response.status(code).json({ message })
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
 			} else {
-				const { refreshToken } = request.body
-				let access = auth.getAccessToken(request)
+				let { accessToken: access, refreshToken } = request.cookies
 				access = await auth.tokenData(access)
 				const refresh = await auth.tokenData(refreshToken)
 				const tokensGiven = access && refresh
 				const ipsMatch = tokensGiven && request.ip===access.ip && access.ip===refresh.ip
 				if ( ipsMatch && refresh.refresh ) {
-					response.status(200).json({
-						accessToken: await auth.accessToken(access.ip, access.userId),
-						refreshToken
-					})
+					const newAccessToken = await auth.accessToken(access.ip, access.userId)
+					const authCookiesOptions = { httpOnly: true, secure: false, sameSite: 'Strict' }
+					response
+						.status(204)
+						.cookie('accessToken', newAccessToken, authCookiesOptions)
+						.cookie('refreshToken', refreshToken, authCookiesOptions)
+						.end()
 				} else {
 					response.status(401).end()
 				}

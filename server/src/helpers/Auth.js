@@ -14,12 +14,6 @@ const auth = {
 		})
 	},
 
-	getAccessToken(request) {
-		const header = request.headers.authorization
-		const token = header && /^Bearer [a-zA-Z0-9-._˜+/]+=*$/.test(header) && header.split(' ')[1]
-		return token || null
-	},
-
 	async refreshToken(ip, userId) {
 		return await this.sign({
 			userId,
