@@ -4,9 +4,11 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+import errorDialog from '@/mixins/errorDialog'
 import Default from '@/layouts/Default'
 import Toolbar from '@/layouts/Toolbar'
 
+Vue.mixin(errorDialog)
 Vue.component('default-layout', Default)
 Vue.component('toolbar-layout', Toolbar)
 

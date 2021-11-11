@@ -5,6 +5,12 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
+		errorDialog: {
+			show: false,
+			title: 'Aviso',
+			message: 'No se puede procesar la acción en este momento.',
+			acceptText: 'Cerrar'
+		},
 		labels: [
 			{ id: '1', name: 'Etiqueta 1 con un nombre extenso', color: '#1b5e20', nestedLabels: [
 				{ id: '1.1', name: 'Etiqueta 1.1', color: '#4caf50', nestedLabels: [
@@ -31,6 +37,18 @@ export default new Vuex.Store({
 		}
 	},
 	mutations: {
+		showErrorDialog(state, newErrorDialog) {
+			const { title, message, acceptText } = newErrorDialog || {}
+			state.errorDialog = {
+				show: true,
+				title: title || 'Aviso',
+				message: message || 'No se puede procesar la acción en este momento.',
+				acceptText: acceptText || 'Cerrar'
+			}
+		},
+		hideErrorDialog(state) {
+			state.errorDialog.show = false
+		},
 		setTime(state, newDatetime) {
 			state.currentDatetime = newDatetime
 		}

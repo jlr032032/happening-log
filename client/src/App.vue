@@ -4,6 +4,7 @@
 			<component :is="layout">
 				<router-view />
 			</component>
+			<error-dialog />
 		</v-main>
 	</v-app>
 </template>
@@ -11,6 +12,9 @@
 <script>
 	export default {
 		name: 'App',
+		components: {
+			ErrorDialog: () => import('@/components/ErrorDialog')
+		},
 		computed: {
 			layout() {
 				return `${this.$route.meta.layout || 'default'}-layout`
