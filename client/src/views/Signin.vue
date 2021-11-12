@@ -18,6 +18,7 @@
 						<v-text-field
 							dense
 							type="email"
+							v-model="credentials.email"
 						/>
 					</div>
 					<div class="d-flex align-center">
@@ -25,12 +26,23 @@
 						<v-text-field
 							dense
 							type="password"
+							v-model="credentials.password"
 						/>
 					</div>
+					<v-alert
+						dense
+						outlined
+						dismissible
+						type="warning"
+						v-model="message.show"
+					>
+						{{ message.text }}
+					</v-alert>
 					<v-btn
 						class="primary mt-2"
 						width="100%"
 						dark
+						@click="signIn"
 					>
 						Ingresar
 					</v-btn>
@@ -134,6 +146,54 @@
 		</div>
 	</div>
 </template>
+
+<script>
+	import requester from '@/helpers/requester'
+	export default {
+		name: 'Signin',
+		data: () => ({
+			credentials: {
+				email: '',
+				password: ''
+			},
+			message: {
+				show: false,
+				text: ''
+			}
+		}),
+		methods: {
+			showMessage(text) {
+				this.message.show = true
+				this.message.text = text
+			},
+			async signIn() {
+				this.message.show = false
+				const email = this.credentials.email.trim()
+				const password = this.credentials.password
+				if ( !email || !password ) {
+					this.showMessage('Se debe proveer email y contraseña')
+					return
+				}
+				const body = { email, password }
+				const response = await requester.post('/auth/token', body)
+				if ( response ) {
+					switch ( response.status ) {
+						case 204:
+							this.$router.push('/sucesos')
+							break
+						case 401:
+							this.showMessage('Combinación inválida de email y contraseña')
+							break
+						default:
+							this.$showErrorDialog()
+					}
+				} else {
+					this.$showErrorDialog()
+				}
+			}
+		}
+	}
+</script>
 
 <style scoped>
 	.custom--main-container {
