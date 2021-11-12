@@ -23,11 +23,10 @@ const UserController = {
 				let user = await User.findByCredentials(email, password)
 				const accessToken = await auth.accessToken(ip, user._id)
 				const refreshToken = await auth.refreshToken(ip, user._id)
-				const authCookiesOptions = { httpOnly: true, secure: false, sameSite: 'Strict' }
 				response
 					.status(204)
-					.cookie('accessToken', accessToken, authCookiesOptions)
-					.cookie('refreshToken', refreshToken, authCookiesOptions)
+					.cookie('accessToken', accessToken, internal.authCookiesOptions)
+					.cookie('refreshToken', refreshToken, internal.authCookiesOptions)
 					.end()
 			}
 		} catch ( error ) {
@@ -51,11 +50,10 @@ const UserController = {
 				const ipsMatch = tokensGiven && request.ip===access.ip && access.ip===refresh.ip
 				if ( ipsMatch && refresh.refresh ) {
 					const newAccessToken = await auth.accessToken(access.ip, access.userId)
-					const authCookiesOptions = { httpOnly: true, secure: false, sameSite: 'Strict' }
 					response
 						.status(204)
-						.cookie('accessToken', newAccessToken, authCookiesOptions)
-						.cookie('refreshToken', refreshToken, authCookiesOptions)
+						.cookie('accessToken', newAccessToken, internal.authCookiesOptions)
+						.cookie('refreshToken', refreshToken, internal.authCookiesOptions)
 						.end()
 				} else {
 					response.status(401).end()
@@ -65,6 +63,36 @@ const UserController = {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
 		}
+	},
+
+	deleteToken(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				response
+					.clearCookie('accessToken', internal.authCookiesOptions)
+					.clearCookie('refreshToken', internal.authCookiesOptions)
+					.status(204)
+					.end()
+			}
+		} catch ( error ) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	}
+
+}
+
+const internal = {
+
+	authCookiesOptions: {
+		httpOnly: true,
+		secure: false,
+		sameSite: 'Strict'
 	}
 
 }

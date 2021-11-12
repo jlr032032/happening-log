@@ -18,6 +18,8 @@ publicRouter.post('/auth/refreshing', UserController.refreshToken)
 const privateRouter = express.Router()
 privateRouter.use(authorization)
 
+privateRouter.delete('/auth/token', UserController.deleteToken)
+
 privateRouter.post('/labels', LabelController.create)
 privateRouter.get('/labels', LabelController.readAll)
 privateRouter.put('/labels/:labelId', uriIdsCheck, LabelController.update)
