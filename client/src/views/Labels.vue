@@ -64,7 +64,7 @@
 			<v-icon>mdi-label</v-icon>
 		</v-btn>
 
-		<v-dialog v-model="newLabelData.show">
+		<v-dialog v-model="labelHandler.show">
 			<v-card>
 				<v-card-title class="custom--title-2 primary--text">{{ labelDialogText('title') }}</v-card-title>
 				<v-card-text>
@@ -72,7 +72,7 @@
 						<label class="custom--edit-label"> Nombre: </label>
 						<v-text-field
 							dense
-							v-model="newLabelData.name"
+							v-model="labelHandler.data.name"
 						/>
 					</div>
 					<div class="d-flex align-center">
@@ -80,18 +80,18 @@
 						<label-select
 							clearable
 							:labels="labels"
-							v-model="newLabelData.parentLabel"
-							:exclude="newLabelData.activeLabel"
+							v-model="labelHandler.data.parentLabel"
+							:exclude="labelHandler.activeLabel"
 						/>
 					</div>
 					<div class="d-flex align-center">
 						<label class="custom--edit-label"> Color: </label>
-						<v-dialog v-model="newLabelData.colorPickerDialog">
+						<v-dialog v-model="labelHandler.colorPickerDialog">
 							<template v-slot:activator="{ attrs, on }">
 								<v-sheet
 									elevation="1"
 									class="custom--color-picker"
-									:color="newLabelData.color"
+									:color="labelHandler.data.color"
 									v-bind="attrs"
 									v-on="on"
 								/>
@@ -108,7 +108,7 @@
 											hide-canvas
 											hide-inputs
 											hide-sliders
-											v-model="newLabelData.color"
+											v-model="labelHandler.data.color"
 											@update:color="closeColorDialog"
 										/>
 									</v-card-text>
@@ -126,8 +126,8 @@
 						</v-dialog>
 					</div>
 					<v-dialog
-						v-model="newLabelData.deleteDialog"
-						v-if="newLabelData.activeLabel"
+						v-model="labelHandler.deleteDialog"
+						v-if="labelHandler.activeLabel"
 					>
 						<template v-slot:activator="{ attrs, on }">
 							<v-btn
@@ -152,7 +152,7 @@
 									</v-btn>
 									<v-btn
 										class="black white--text"
-										@click="closeDeleteDialog(newLabelData.activeLabel)"
+										@click="closeDeleteDialog(labelHandler.activeLabel)"
 									>
 										Eliminar
 									</v-btn>
@@ -166,9 +166,9 @@
 						outlined
 						dismissible
 						type="warning"
-						v-model="newLabelData.message.show"
+						v-model="labelHandler.message.show"
 					>
-						{{ newLabelData.message.text }}
+						{{ labelHandler.message.text }}
 					</v-alert>
 				</v-card-text>
 				<v-card-actions>
@@ -180,7 +180,7 @@
 						Cancelar
 					</v-btn>
 					<v-btn
-						v-if="newLabelData.activeLabel"
+						v-if="labelHandler.activeLabel"
 						class="primary"
 						@click="updateLabel"
 					>
@@ -215,14 +215,16 @@
 		},
 		data: () => ({
 			multiple: true,
-			newLabelData: {
-				name: '',
-				color: '#0D47A1',
-				parentLabel: null,
+			labelHandler: {
 				activeLabel: null,
 				colorPickerDialog: false,
 				deleteDialog: false,
 				update: false,
+				data: {
+					name: '',
+					color: '#0D47A1',
+					parentLabel: null
+				},
 				message: {
 					show: false,
 					text: ''
@@ -259,20 +261,20 @@
 			...mapMutations(['setLabels']),
 			...mapActions(['linkParentLabels']),
 			closeColorDialog() {
-				this.newLabelData.colorPickerDialog = false
+				this.labelHandler.colorPickerDialog = false
 			},
 			closeLabelDialog() {
-				this.newLabelData.show = false
+				this.labelHandler.show = false
 			},
 			closeDeleteDialog(labelToBeDeleted) {
 				if ( labelToBeDeleted ) {
 					console.log('Delete', labelToBeDeleted)
 					this.closeLabelDialog()
 				}
-				this.newLabelData.deleteDialog = false
+				this.labelHandler.deleteDialog = false
 			},
 			async createLabel() {
-				let { newLabelData: { message, name, color, parentLabel } } = this
+				let { labelHandler: { message, data: { name, color, parentLabel } } } = this
 				message.show = false
 				name = name.trim()
 				if ( name=='' ) {
@@ -323,33 +325,37 @@
 					title: { true: 'Modificar etiqueta', false: 'Crear etiqueta' },
 					accept: { true: 'Modificar', false: 'Crear' }
 				}
-				return texts[ intendedFor||'accept' ][ Boolean(this.newLabelData.update) ]
+				return texts[ intendedFor||'accept' ][ Boolean(this.labelHandler.update) ]
 			},
 			showLabelDialog(label) {
 				if ( !label ) {
-					this.newLabelData = {
-						name: '',
-						color: '#0D47A1',
-						parentLabel: null,
+					this.labelHandler = {
 						activeLabel: null,
 						update: false,
 						colorPickerDialog: false,
 						show: true,
+						data: {
+							name: '',
+							color: '#0D47A1',
+							parentLabel: null,
+						},
 						message: {
 							show: false,
 							text: ''
 						}
 					}
 				} else {
-					this.newLabelData = {
-						id: label.id,
-						name: label.name,
-						color: label.color,
-						parentLabel: label.parentLabel,
+					this.labelHandler = {
 						activeLabel: label,
 						update: true,
 						colorPickerDialog: false,
 						show: true,
+						data: {
+							id: label.id,
+							name: label.name,
+							color: label.color,
+							parentLabel: label.parentLabel
+						},
 						message: {
 							show: false,
 							text: ''
