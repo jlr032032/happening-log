@@ -182,9 +182,10 @@
 </template>
 
 <script>
-	import helpers from '@/mixins/helpers'
-	import { mapState, mapActions } from 'vuex'
+	import { mapState, mapMutations, mapActions } from 'vuex'
 	import { normalizeText } from 'normalize-text'
+	import helpers from '@/mixins/helpers'
+	import requester from '@/helpers/requester'
 
 	export default {
 		name: "Labels",
@@ -229,10 +230,21 @@
 				}
 			}
 		},
-		created() {
-			this.linkParentLabels()
+		async created() {
+			this.setLabels([])
+			const response = await requester.get('/labels')
+			switch ( response && response.status ) {
+				case 200:
+					this.setLabels(response.data)
+					this.linkParentLabels()
+					break
+				default:
+					const message = 'No se pueden obtener las etiquetas en este momento.'
+					this.$showErrorDialog({ message })
+			}
 		},
 		methods: {
+			...mapMutations(['setLabels']),
 			...mapActions(['linkParentLabels']),
 			closeColorDialog() {
 				this.newLabelData.colorPickerDialog = false
@@ -252,8 +264,8 @@
 					if ( normalizeText(label.name).includes(this.search.normalizedText) ) {
 						this.search.result.push(label)
 					}
-					if ( label.nestedLabels && label.nestedLabels.length ) {
-						this.filter(label.nestedLabels)
+					if ( label.subLabels && label.subLabels.length ) {
+						this.filter(label.subLabels)
 					}
 				}
 			},

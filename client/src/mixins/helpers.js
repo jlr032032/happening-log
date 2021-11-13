@@ -22,7 +22,7 @@ export default {
 		includesLabel(soughtLabel, labels) {
 			if ( Array.isArray(labels) ) {
 				for ( let label of labels ) {
-					if ( soughtLabel===label || ( label.nestedLabels && this.includesLabel(soughtLabel, label.nestedLabels) ) ) {
+					if ( soughtLabel===label || ( label.subLabels && this.includesLabel(soughtLabel, label.subLabels) ) ) {
 						return true
 					}
 				}
