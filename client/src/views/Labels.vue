@@ -160,6 +160,16 @@
 							</v-card>
 						</template>
 					</v-dialog>
+					<v-alert
+						class="mt-5"
+						dense
+						outlined
+						dismissible
+						type="warning"
+						v-model="newLabelData.message.show"
+					>
+						{{ newLabelData.message.text }}
+					</v-alert>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer />
@@ -213,7 +223,10 @@
 				colorPickerDialog: false,
 				deleteDialog: false,
 				update: false,
-				show: false
+				message: {
+					show: false,
+					text: ''
+				}
 			},
 			search: {
 				text: '',
@@ -240,17 +253,7 @@
 			}
 		},
 		async created() {
-			this.setLabels([])
-			const response = await requester.get('/labels')
-			switch ( response && response.status ) {
-				case 200:
-					this.setLabels(response.data)
-					this.linkParentLabels()
-					break
-				default:
-					const message = 'No se pueden obtener las etiquetas en este momento.'
-					this.$showErrorDialog({ message })
-			}
+			await this.fetchLabels()
 		},
 		methods: {
 			...mapMutations(['setLabels']),
@@ -268,8 +271,39 @@
 				}
 				this.newLabelData.deleteDialog = false
 			},
-			createLabel() {
-				console.log('Create label')
+			async createLabel() {
+				let { newLabelData: { message, name, color, parentLabel } } = this
+				message.show = false
+				name = name.trim()
+				if ( name=='' ) {
+					message.text = 'Al menos se debe proveer el nombre de la etiqueta.'
+					message.show = true
+					return
+				}
+				let newLabel = { name, color }
+				parentLabel && ( newLabel.parentId = parentLabel.id )
+				const createResponse = await requester.post('/labels', newLabel)
+				switch ( createResponse && createResponse.status ) {
+					case 201:
+						await this.fetchLabels()
+						this.closeLabelDialog()
+						break
+					default:
+						this.$showErrorDialog()
+				}
+			},
+			async fetchLabels() {
+				this.setLabels([])
+				const response = await requester.get('/labels')
+				switch ( response && response.status ) {
+					case 200:
+						this.setLabels(response.data)
+						this.linkParentLabels()
+						break
+					default:
+						const message = 'No se pueden obtener las etiquetas en este momento.'
+						this.$showErrorDialog({ message })
+				}
 			},
 			updateLabel() {
 				console.log('Update label')
@@ -300,7 +334,11 @@
 						activeLabel: null,
 						update: false,
 						colorPickerDialog: false,
-						show: true
+						show: true,
+						message: {
+							show: false,
+							text: ''
+						}
 					}
 				} else {
 					this.newLabelData = {
@@ -311,7 +349,11 @@
 						activeLabel: label,
 						update: true,
 						colorPickerDialog: false,
-						show: true
+						show: true,
+						message: {
+							show: false,
+							text: ''
+						}
 					}
 				}
 			}
