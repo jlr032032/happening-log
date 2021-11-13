@@ -170,7 +170,16 @@
 						Cancelar
 					</v-btn>
 					<v-btn
+						v-if="newLabelData.activeLabel"
 						class="primary"
+						@click="updateLabel"
+					>
+						{{ labelDialogText('accept') }}
+					</v-btn>
+					<v-btn
+						v-else
+						class="primary"
+						@click="createLabel"
 					>
 						{{ labelDialogText('accept') }}
 					</v-btn>
@@ -258,6 +267,12 @@
 					this.closeLabelDialog()
 				}
 				this.newLabelData.deleteDialog = false
+			},
+			createLabel() {
+				console.log('Create label')
+			},
+			updateLabel() {
+				console.log('Update label')
 			},
 			filter(labels) {
 				for ( let label of labels ) {
