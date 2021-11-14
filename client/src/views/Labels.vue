@@ -307,8 +307,26 @@
 						this.$showErrorDialog({ message })
 				}
 			},
-			updateLabel() {
-				console.log('Update label')
+			async updateLabel() {
+				let { labelHandler: { message, data: { id, name, color, parentLabel } } } = this
+				message.show = false
+				name = name.trim()
+				if ( name=='' ) {
+					message.text = 'Se debe proveer el nombre de la etiqueta.'
+					message.show = true
+					return
+				}
+				let updatedLabel = { id, name, color }
+				updatedLabel.parentId = parentLabel ? parentLabel.id : null
+				const createResponse = await requester.put(`/labels/${id}`, updatedLabel)
+				switch ( createResponse && createResponse.status ) {
+					case 200:
+						await this.fetchLabels()
+						this.closeLabelDialog()
+						break
+					default:
+						this.$showErrorDialog()
+				}
 			},
 			filter(labels) {
 				for ( let label of labels ) {
