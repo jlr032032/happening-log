@@ -105,9 +105,10 @@
 </template>
 
 <script>
-	import helpers from '@/mixins/helpers'
 	import { mapState } from 'vuex'
 	import { normalizeText } from 'normalize-text'
+	import helpers from '@/mixins/helpers'
+	import requester from '@/helpers/requester'
 
 	export default {
 		name: 'Happenings',
@@ -129,29 +130,14 @@
 				searchedLabels: [],
 				searchedText: ''
 			},
-			happenings: [
-				{
-					id: 1,
-					name: 'Suceso 1',
-					labels: [
-						{ id: '4.2', name: 'Etiqueta 4.2', color: '#fff176' },
-						{ id: '2', name: 'Etiqueta 2', color: '#e1f5fe' }
-					],
-					fields: [
-						{ id: 1, name: "Uno", type: "text" },
-						{ id: 2, name: "Dos", type: "number" },
-						{ id: 3, name: "Tres", type: "date" },
-						{ id: 4, name: "Cuatro", type: "time" }
-					]
-				},
-				{ id: 2, name: 'Suceso 2', labels: [
-					{ id: '4', name: 'Etiqueta 4', color: '#80cbc4' }
-				]},
-				{ id: 3, name: 'Suceso 3', labels: [
-					{ id: '5', name: 'Etiqueta 5', color: '#2e7d32' }
-				]}
-			]
+			happenings: []
 		}),
+		async created() {
+			await Promise.all([
+				this.fetchLabels(),
+				this.fetchHappenings()
+			])
+		},
 		computed: {
 			...mapState(['labels']),
 			searchedText() {
@@ -183,6 +169,17 @@
 			}
 		},
 		methods: {
+			async fetchHappenings() {
+				const response = await requester.get('/happenings')
+				switch ( response && response.status ) {
+					case 200:
+						this.happenings = response.data
+						break
+					default:
+						const message = 'No se pueden obtener los sucesos en este momento.'
+						this.$showErrorDialog({ message })
+				}
+			},
 			showNewHappeningDialog(value) {
 				this.newHappeningDialog = value
 			},
