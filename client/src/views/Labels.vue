@@ -266,10 +266,18 @@
 			closeLabelDialog() {
 				this.labelHandler.show = false
 			},
-			closeDeleteDialog(labelToBeDeleted) {
+			async closeDeleteDialog(labelToBeDeleted) {
 				if ( labelToBeDeleted ) {
-					console.log('Delete', labelToBeDeleted)
-					this.closeLabelDialog()
+					const { id } = labelToBeDeleted
+					const response = await requester.delete(`/labels/${id}`)
+					switch ( response && response.status ) {
+						case 200:
+							await this.fetchLabels()
+							this.closeLabelDialog()
+							break
+						default:
+							this.$showErrorDialog()
+					}
 				}
 				this.labelHandler.deleteDialog = false
 			},
