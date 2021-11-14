@@ -1,3 +1,5 @@
+import requester from '@/helpers/requester'
+
 const internal = {
 	contrastingColors: {
 		default: { true: 'white', false: 'black' },
@@ -26,6 +28,19 @@ export default {
 						return true
 					}
 				}
+			}
+		},
+		async fetchLabels() {
+			this.$store.commit('setLabels', [])
+			const response = await requester.get('/labels')
+			switch ( response && response.status ) {
+				case 200:
+					this.$store.commit('setLabels', response.data)
+					this.$store.dispatch('linkParentLabels')
+					break
+				default:
+					const message = 'No se pueden obtener las etiquetas en este momento.'
+					this.$showErrorDialog({ message })
 			}
 		}
 	}

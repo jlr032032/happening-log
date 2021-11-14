@@ -302,19 +302,6 @@
 						this.$showErrorDialog()
 				}
 			},
-			async fetchLabels() {
-				this.setLabels([])
-				const response = await requester.get('/labels')
-				switch ( response && response.status ) {
-					case 200:
-						this.setLabels(response.data)
-						this.linkParentLabels()
-						break
-					default:
-						const message = 'No se pueden obtener las etiquetas en este momento.'
-						this.$showErrorDialog({ message })
-				}
-			},
 			async updateLabel() {
 				let { labelHandler: { message, data: { id, name, color, parentLabel } } } = this
 				message.show = false
