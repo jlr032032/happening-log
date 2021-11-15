@@ -79,6 +79,23 @@ const HappeningController = {
 		}
 	},
 
+	async readOne(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				response.status(400).json({ message: badBody.details[0].message })
+			} else {
+				const { userId, params: { happeningId } } = request
+				let happening = await Happening.find(userId, happeningId)
+				response.status(200).json( happening.clientFields({ remove: ['userId'] }) )
+			}
+		} catch ( error ) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
 	async update(request, response, next) {
 		try {
 			const happeningId = request.params.happeningId
