@@ -59,6 +59,7 @@
 
 <script>
 	import { mapState } from 'vuex'
+	import requester from '@/helpers/requester'
 
 	export default {
 		name: 'HappeningCreator',
@@ -77,7 +78,8 @@
 		computed: {
 			...mapState(['labels']),
 			isValidHappening() {
-				return Boolean(this.newHappeningData.name.trim())
+				const { name, fields } = this.newHappeningData
+				return Boolean( name.trim() && fields.length )
 			}
 		},
 		methods: {
@@ -92,9 +94,19 @@
 			hideNewHappeningDialog() {
 				this.newHappeningDialog = false
 			},
-			createHappening(newHappening) {
-				console.log('Create happening:', newHappening)
-				this.newHappeningDialog = false
+			async createHappening() {
+				let { name, labels, fields } = this.newHappeningData
+				let newHappening = { name, fields }
+				labels.length && ( newHappening.labelsIds = labels.map( label => label.id ) )
+				const response = await requester.post('/happenings', newHappening)
+				switch ( response && response.status ) {
+					case 201:
+						this.$emit('createdHappening', response.data)
+						this.newHappeningDialog = false
+						break
+					default:
+						this.$showErrorDialog()
+				}
 			}
 		}
 	}

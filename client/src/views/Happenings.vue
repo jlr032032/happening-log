@@ -94,7 +94,7 @@
 			</div>
 		</div>
 
-		<happening-creator />
+		<happening-creator @createdHappening="addHappening"/>
 
 		<record-handler
 			:show.sync="recordHandling.dialog"
@@ -169,6 +169,9 @@
 			}
 		},
 		methods: {
+			addHappening(newHappening) {
+				this.happenings.push(newHappening)
+			},
 			async fetchHappenings() {
 				const response = await requester.get('/happenings')
 				switch ( response && response.status ) {

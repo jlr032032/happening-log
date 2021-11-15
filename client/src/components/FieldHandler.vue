@@ -140,7 +140,7 @@
 				{ value: 'text', name: 'Texto' },
 				{ value: 'number', name: 'Número' },
 				{ value: 'date', name: 'Fecha' },
-				{ value: 'time', name: 'Hora' }
+				{ value: 'datetime', name: 'Fecha y hora' }
 			]
 		}),
 		created() {
