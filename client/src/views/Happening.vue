@@ -34,7 +34,8 @@
 				only-labels
 				multiple
 				:labels="labels"
-				v-model="happening.labels"
+				:selected="happening.labels"
+				@change="updateHappeningLabels"
 			/>
 
 			<field-handler
@@ -180,6 +181,19 @@
 						default:
 							this.$showErrorDialog()
 					}
+				}
+			},
+			async updateHappeningLabels(labels) {
+				const { id, name, fields } = this.happening
+				let happening = { name, fields }
+				labels.length && ( happening.labelsIds = labels.map( label => label.id ) )
+				const response = await requester.put(`/happenings/${id}`, happening)
+				switch ( response && response.status ) {
+					case 200:
+						this.happening.labels = labels
+						break
+					default:
+						this.$showErrorDialog()
 				}
 			}
 		}
