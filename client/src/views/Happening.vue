@@ -41,7 +41,9 @@
 			<field-handler
 				large-title
 				class="mt-7"
-				v-model="happening.fields"
+				:canBeEmptied="false"
+				:fields="happening.fields"
+				@change="updateHappeningFields"
 			/>
 
 			<div class="mt-7">
@@ -191,6 +193,19 @@
 				switch ( response && response.status ) {
 					case 200:
 						this.happening.labels = labels
+						break
+					default:
+						this.$showErrorDialog()
+				}
+			},
+			async updateHappeningFields(fields) {
+				const { id, name, labels } = this.happening
+				let happening = { name, fields }
+				labels && labels.length && ( happening.labelsIds = labels.map( label => label.id ) )
+				const response = await requester.put(`/happenings/${id}`, happening)
+				switch ( response && response.status ) {
+					case 200:
+						this.happening.fields = fields
 						break
 					default:
 						this.$showErrorDialog()
