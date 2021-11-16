@@ -57,7 +57,41 @@
 				</router-link>
 			</div>
 
-			<v-btn class="mt-6 black white--text custom--full-width"> Eliminar suceso </v-btn>
+			<v-dialog v-model="showDeletionDialog">
+				<template v-slot:activator="{ attrs, on }">
+					<v-btn
+						class="mt-6 black white--text custom--full-width"
+						v-bind="attrs"
+						v-on="on"
+					>
+						Eliminar suceso
+					</v-btn>
+				</template>
+				<template v-slot:default>
+					<v-card>
+						<v-card-title class="custom--title-2 primary--text"> Eliminar suceso </v-card-title>
+						<v-card-text>
+							Se eliminará el suceso y todos sus registros de forma irreversible ¿Deseas continuar?
+						</v-card-text>
+						<v-card-actions>
+							<v-spacer />
+							<v-btn
+								class="primary"
+								@click="closeDeletionDialog()"
+							>
+								Cancelar
+							</v-btn>
+							<v-btn
+								class="black white--text"
+								@click="closeDeletionDialog(true)"
+							>
+								Eliminar
+							</v-btn>
+						</v-card-actions>
+					</v-card>
+				</template>
+			</v-dialog>
+			
 
 		</div>
 
@@ -91,6 +125,7 @@
 			RecordsTable: () => import('@/components/RecordsTable')
 		},
 		data: () => ({
+			showDeletionDialog: false,
 			messageScreen: {
 				show: false,
 				text: ''
@@ -209,6 +244,21 @@
 						break
 					default:
 						this.$showErrorDialog()
+				}
+			},
+			async closeDeletionDialog(erase) {
+				if ( erase ) {
+					const { id } = this.happening
+					const response = await requester.delete(`/happenings/${id}`)
+					switch ( response && response.status ) {
+						case 200:
+							this.$router.replace('/sucesos')
+							break
+						default:
+							this.$showErrorDialog()
+					}
+				} else {
+					this.showDeletionDialog = false
 				}
 			}
 		}

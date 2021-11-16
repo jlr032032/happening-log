@@ -49,8 +49,10 @@ const HappeningController = {
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
-				const deletedHappening = await Happening.delete(request.userId, request.params.happeningId)
+				const { userId, params: { happeningId} } = request
+				const deletedHappening = await Happening.delete(userId, happeningId)
 				if ( deletedHappening ) {
+					await Record.deleteByHappeningId(userId, happeningId)
 					response.status(200).json(deletedHappening.clientFields({ remove: ['userId'] }))
 				} else {
 					response.status(404).json({ message: 'No happening with such id' })

@@ -35,6 +35,10 @@ class Record {
 		return deleted
 	}
 
+	async deleteByHappeningId(userId, happeningId) {
+		await RecordOdm.deleteMany({ userId, happeningId })
+	}
+
 	async readByHappeningId(userId, happeningId) {
 		return await RecordOdm.find({ userId, happeningId })
 	}
