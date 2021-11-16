@@ -166,10 +166,20 @@
 					}
 				}
 			},
-			updateHappeningName(newName) {
-				newName = normalizeWhiteSpaces(newName)
+			async updateHappeningName(newName) {
+				newName = newName && normalizeWhiteSpaces(newName)
 				if ( newName ) {
-					this.happening.name = newName
+					const { id, labels, fields } = this.happening
+					let happening = { name: newName, fields }
+					labels && ( happening.labelsIds = labels.map( label => label.id ) )
+					const response = await requester.put(`/happenings/${id}`, happening)
+					switch ( response && response.status ) {
+						case 200:
+							this.happening.name = newName
+							break
+						default:
+							this.$showErrorDialog()
+					}
 				}
 			}
 		}
