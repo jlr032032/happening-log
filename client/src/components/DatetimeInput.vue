@@ -85,21 +85,23 @@
 				this.useCurrentDatetime = !value
 			},
 			value(value) {
-				if ( value && value.utc ) {
-					const { date, time } = this.getDateAndTime(value.utc)
-					this.date.lastNotCurrent = date
-					this.time.lastNotCurrent = time
-					if ( !this.useCurrentDatetime ) {
-						this.date.value = date
-						this.time.value = time
-					}
-				} else {
-					const nullDate = { utc: null, local: null }
-					this.date.lastNotCurrent = nullDate
-					this.time.lastNotCurrent = null
-					if ( !this.useCurrentDatetime ) {
-						this.date.value = nullDate
-						this.time.value = null
+				if ( value!==this.datetime ) {
+					if ( value && value.utc ) {
+						const { date, time } = this.getDateAndTime(value.utc)
+						this.date.lastNotCurrent = date
+						this.time.lastNotCurrent = time
+						if ( !this.useCurrentDatetime ) {
+							this.date.value = date
+							this.time.value = time
+						}
+					} else {
+						const nullDate = { utc: null, local: null }
+						this.date.lastNotCurrent = nullDate
+						this.time.lastNotCurrent = null
+						if ( !this.useCurrentDatetime ) {
+							this.date.value = nullDate
+							this.time.value = null
+						}
 					}
 				}
 			},
