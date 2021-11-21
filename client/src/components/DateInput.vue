@@ -11,9 +11,9 @@
 				readonly
 				v-bind="attrs"
 				v-on="on"
-				:disabled="isDisabled"
+				:placeholder="placeholder"
+				:disabled="disabled"
 				:value="formattedDate"
-				@click="showDateMenu"
 			/>
 		</template>
 		<template v-slot:default>
@@ -21,19 +21,19 @@
 				scrollable
 				reactive
 				locale="es-MX"
-				v-model="temporaryDate"
+				v-model="date.temporary"
 			>
-				<v-spacer></v-spacer>
+				<v-spacer />
 				<v-btn
 					text
-					@click="hideDateMenu()"
+					@click="closeDateMenu()"
 				>
 					Cancelar
 				</v-btn>
 				<v-btn
 					color="primary"
 					:disabled="isAcceptDisabled"
-					@click="hideDateMenu(true)"
+					@click="closeDateMenu(date.temporary)"
 				>
 					Aceptar
 				</v-btn>
@@ -43,89 +43,79 @@
 </template>
 
 <script>
-	import { mapState, mapActions } from 'vuex'
+	import dateHelper from '@/helpers/date'
 
 	export default {
 		name: 'DateInput',
 		props: {
-			date: { type: String, default: null },
-			useCurrentDate: { type: Boolean, default: false }
+			value: { type: Object, default: null },
+			placeholder: { type: String, default: '' },
+			disabled: { type: Boolean, default: false }
 		},
 		model: {
-			prop: 'date',
+			prop: 'value',
 			event: 'change'
 		},
 		data: () => ({
-			date_: null,
-			temporaryDate: null,
-			lastGivenDate: null,
 			dateMenu: false,
-			timeListenerId: null
+			date: {
+				temporary: null,
+				inner: null,
+				outer: { utc: null, local: null }
+			},
 		}),
 		created: async function() {
-			if ( this.date ) {
-				this.date_ = this.lastGivenDate = new Date(this.date)
-			}
-			if ( this.useCurrentDate ) {
-				this.timeListenerId = await this.listenToTime(this.timeListenerId)
-			}
+			this.setValue(this.value)
 		},
 		watch: {
-			date(newDate) {
-				this.date_ = newDate ? new Date(newDate) : null
-			},
-			useCurrentDate: async function(use) {
-				if ( use ) {
-					this.timeListenerId = await this.listenToTime(this.timeListenerId)
-				} else {
-					this.stopListeningToTime(this.timeListenerId)
-					this.timeListenerId = null
-					this.date_ = this.lastGivenDate
-					this.$emit('change', this.lastGivenDate ? this.lastGivenDate.toJSON() : null)
-				}
-			},
-			currentDatetime(newValue, oldValue) {
-				if ( this.useCurrentDate && newValue && ( !oldValue || newValue.formattedTime!==oldValue.formattedTime ) ) {
-					this.$emit('change', newValue.datetime.toJSON())
-				}
+			value(newDate) {
+				this.setValue(newDate)
 			}
 		},
 		computed: {
-			...mapState(['currentDatetime']),
-			isDisabled() {
-				return this.useCurrentDate
+			formattedDate() {
+				const formatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+				let date = this.date.outer.utc
+				date = date && new Date(date)
+				return date ? date.toLocaleDateString('es-MX', formatOptions) : ''
 			},
 			isAcceptDisabled() {
-				return !this.temporaryDate
-			},
-			formattedDate() {
-				if ( this.useCurrentDate ) {
-					return this.currentDatetime ? this.currentDatetime.formattedDate : ''
-				}
-				if ( this.date_ ) {
-					return this.date_.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
-				}
-				return ''
+				return !this.date.temporary
 			}
 		},
 		methods: {
-			...mapActions(['listenToTime', 'stopListeningToTime']),
-			showDateMenu() {
-				this.temporaryDate = this.date_ ? this.date_.toJSON().slice(0, 10) : null
-				this.dateMenu = true
-			},
-			hideDateMenu(save) {
-				if ( save ) {
-					const newDate = new Date(this.temporaryDate.replaceAll('-', '/'))
-					this.date_ = this.lastGivenDate = newDate
-					this.$emit('change', newDate.toJSON())
+			closeDateMenu(newDate) {
+				if ( newDate ) {
+					newDate = new Date(newDate.replaceAll('-', '/'))
+					newDate = dateHelper.utcAndLocal(newDate)
+					this.date.outer = newDate
+					this.$emit('change', newDate)
 				}
 				this.dateMenu = false
+			},
+			innerDateFormat(date) {
+				const { pad } = dateHelper
+				date = new Date(date)
+				const YY = date.getFullYear()
+				const MM = pad(date.getMonth()+1, 2)
+				const DD = pad(date.getDate(), 2)
+				return `${YY}-${MM}-${DD}`
+			},
+			setValue(value) {
+				if ( value && value.utc ) {
+					this.date.outer = value
+					const formatted = this.innerDateFormat(value.utc)
+					this.date.inner = formatted
+					this.date.temporary = formatted
+				} else {
+					this.date.outer = { utc: null, local: null }
+					this.date.inner = null
+					this.date.temporary = undefined
+				}
+			},
+			showDateMenu() {
+				this.dateMenu = true
 			}
-		},
-		beforeDestroy() {
-			this.stopListeningToTime(this.timeListenerId)
-			this.timeListenerId = null
 		}
 	}
 </script>
