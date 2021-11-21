@@ -9,27 +9,28 @@
 			<v-text-field
 				dense
 				readonly
-				:disabled="isDisabled"
 				v-bind="attrs"
 				v-on="on"
+				:placeholder="placeholder"
+				:disabled="disabled"
 				:value="formattedTime"
-				@click="showTimeMenu"
 			/>
 		</template>
 		<template v-slot:default>
 			<v-time-picker
-				v-model="temporaryTime"
+				v-model="time.temporary"
 			>
 				<v-spacer />
 				<v-btn
 					text
-					@click="hideTimeMenu()"
+					@click="closeTimeMenu()"
 				>
 					Cancelar
 				</v-btn>
 				<v-btn
-					class="primary white--text"
-					@click="hideTimeMenu(true)"
+					color="primary"
+					:disabled="isAcceptDisabled"
+					@click="closeTimeMenu(time.temporary)"
 				>
 					Aceptar
 				</v-btn>
@@ -39,89 +40,74 @@
 </template>
 
 <script>
-	import { mapState, mapActions } from 'vuex'
-
 	export default {
 		name: 'TimeInput',
-		props: ['time', 'useCurrentTime'],
+		props: {
+			value: { type: Object },
+			placeholder: { type: String, default: '' },
+			disabled: { type: Boolean, default: false }
+		},
 		data: () => ({
-			time_: null,
-			temporaryTime: null,
-			lastGivenTime: null,
 			timeMenu: false,
-			timeListenerId: null
+			time: {
+				temporary: null,
+				inner: '',
+				outer: { hours: null, minutes: null, seconds: null }
+			}
 		}),
 		model: {
-			prop: 'time',
+			prop: 'value',
 			event: 'change'
 		},
 		created: async function() {
-			if ( this.time ) {
-				this.time_ = this.lastGivenTime = this.time
-			}
-			if ( this.useCurrentTime ) {
-				this.timeListenerId = await this.listenToTime(this.timeListenerId)
-			}
+			this.value && this.setValue(this.value)
 		},
 		watch: {
-			time(newTime) {
-				this.time_ = this.lastGivenTime = newTime
-			},
-			useCurrentTime: async function(use) {
-				if ( use ) {
-					this.timeListenerId = await this.listenToTime(this.timeListenerId)
-				} else {
-					this.stopListeningToTime(this.timeListenerId)
-					this.timeListenerId = null
-					this.time_ = this.lastGivenTime
-					this.$emit('change', this.lastGivenTime)
-				}
-			},
-			currentDatetime(newValue, oldValue) {
-				if ( this.useCurrentTime && newValue && ( !oldValue || newValue.formattedTime!==oldValue.formattedTime ) ) {
-					this.$emit('change', newValue.datetime
-						.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-					)
-				}
+			value(newTime) {
+				this.setValue(newTime)
 			}
 		},
 		computed: {
-			...mapState(['currentDatetime']),
-			isDisabled() {
-				return this.useCurrentTime
-			},
 			formattedTime() {
-				if ( this.useCurrentTime ) {
-					return this.currentDatetime.formattedTime
-				} else {
-					if ( this.time_ ) {
-						const [ hours, minutes ] = this.time_.split(':')
-						return new Date(0, 0, 0, hours, minutes)
-							.toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' })
-					} else {
-						return ''
-					}
+				const time = this.time
+				if ( time.inner ) {
+					const { hours, minutes, seconds } = time.outer
+					const formatOptions = { hour12: true, hour: '2-digit', minute: '2-digit' }
+					return new Date(0, 0, 0, hours, minutes, seconds)
+						.toLocaleTimeString('es-MX', formatOptions)
+						.replace(/^0/, '')
 				}
+				return ''
+			},
+			isAcceptDisabled() {
+				return !this.time.temporary
 			}
 		},
 		methods: {
-			...mapActions(['listenToTime', 'stopListeningToTime']),
-			showTimeMenu() {
-				this.temporaryTime = this.time_ ||
-					new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-				this.timeMenu = true
-			},
-			hideTimeMenu(save) {
-				if ( save ) {
-					this.time_ = this.lastGivenTime = this.temporaryTime
-					this.$emit('change', this.temporaryTime)
+			closeTimeMenu(newTime) {
+				if ( newTime ) {
+					this.time.inner = newTime
+					const [ hours, minutes ] = newTime.split(':').map( part => Number(part) )
+					this.time.outer = { hours, minutes, seconds: 0 }
+					this.$emit('change', this.time.outer)
 				}
 				this.timeMenu = false
+			},
+			setValue(value) {
+				let time = this.time
+				const { hours: HH, minutes: MM, seconds: SS } = value || {}
+				const validValue = [HH, MM, SS].reduce( (accum, item) => accum && typeof item === 'number', true )
+				if ( validValue ) {
+					const formatted = `${HH}:${MM}`
+					time.outer = value
+					time.inner = formatted
+					time.temporary = formatted
+				} else {
+					time.temporary = null
+					time.inner = null,
+					time.outer = { utc: null, local: null }
+				}
 			}
-		},
-		beforeDestroy() {
-			this.stopListeningToTime(this.timeListenerId)
-			this.timeListenerId = null
 		}
 	}
 </script>

@@ -12,11 +12,7 @@ export default new Vuex.Store({
 			acceptText: 'Cerrar'
 		},
 		labels: [],
-		currentDatetime: {
-			datetime: null,
-			formattedDate: null,
-			formattedTime: null
-		}
+		currentDatetime: null
 	},
 	mutations: {
 		showErrorDialog(state, newErrorDialog) {
@@ -42,7 +38,7 @@ export default new Vuex.Store({
 		linkParentLabels({ state }) {
 			internals.linkParentLabels(state.labels, null)
 		},
-		listenToTime({ commit }, listenerId) {
+		startTimeListening({ commit }, listenerId) {
 			if ( internals.listeners.includes(listenerId) ) {
 				return listenerId
 			} else {
@@ -54,7 +50,7 @@ export default new Vuex.Store({
 				return newListenerId
 			}
 		},
-		stopListeningToTime({ commit }, listenerId) {
+		stopTimeListening({ commit }, listenerId) {
 			const index = listenerId ? internals.listeners.indexOf(listenerId) : -1
 			const isValidListener = index > -1
 			if ( isValidListener ) {
@@ -62,11 +58,7 @@ export default new Vuex.Store({
 				if ( !internals.listeners.length ) {
 					clearTimeout(internals.timeoutId)
 					internals.timeoutId = null
-					commit('setTime', {
-						datetime: null,
-						formattedDate: null,
-						formattedTime: null
-					})
+					commit('setTime',  null)
 				}
 			}
 		}
@@ -89,12 +81,7 @@ const internals = {
 	updateTime(commit) {
 		this.timeoutId = setTimeout( () => this.updateTime(commit), 1000-Date.now()%1000 )
 		const now = new Date()
-		const newTime = {
-			datetime: now,
-			formattedDate: now.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-			formattedTime: now.
-				toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })
-		}
-		commit('setTime', newTime)
+		now.setMilliseconds(0)
+		commit('setTime', now)
 	}
 }
