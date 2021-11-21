@@ -12,77 +12,22 @@
 				<v-card-text class="mt-4">
 					<div v-if="hasFields">
 						<h4 class="custom--title-4 primary--text"> Características </h4>
-						<v-row
-							v-for="(field, index) of happening_.fields"
-							:key="index"
-							dense
-							class="align-center"
-						>
-							<v-col cols="6">
-								<label>{{ field.name }}:</label>
-							</v-col>
-							<v-col cols="6">
-								<dynamic-input
-									:type="field.type"
-									:value="getFieldValue(field.id)"
-									@input="setFieldValue(field.id, $event)"
-								/>
-							</v-col>
-						</v-row>
-					</div>
-					<div class="mt-2">
-						<div
-							v-if="!updateMode"
-							class="d-flex align-center justify-space-between"
-						>
-							<label class="primary--text"> Fecha y hora: </label>
-							<v-chip-group
-								active-class="custom--filter-type-active-chip"
-								mandatory
-								v-model="datetimeSource"
-							>
-								<v-chip
-									class="custom--filter-type-chip"
-									value="current"
+						<div class="d-flex mt-2">
+							<div>
+								<div
+									v-for="(field, index) of happening_.fields"
+									:key="index"
+									class="d-flex align-center"
 								>
-									Actuales
-								</v-chip>
-								<v-chip
-									class="custom--filter-type-chip"
-									value="other"
-								>
-									Otras
-								</v-chip>
-							</v-chip-group>
+									<label class="mr-7">{{ field.name }}:</label>
+									<dynamic-input
+										:type="field.type"
+										:value="getFieldValue(field.id)"
+										@input="setFieldValue(field.id, $event)"
+									/>
+								</div>
+							</div>
 						</div>
-						<v-row
-							dense
-							class="align-center"
-						>
-							<v-col cols="6">
-								<label> Fecha: </label>
-							</v-col>
-							<v-col cols="6">
-								<date-input
-									:useCurrentDate="useCurrentDatetime"
-									v-model="record_.date"
-								/>
-							</v-col>
-						</v-row>
-						<v-row
-							dense
-							class="align-center"
-						>
-							<v-col cols="6">
-								<label> Hora: </label>
-							</v-col>
-							<v-col cols="6">
-								<time-input
-									:useCurrentTime="useCurrentDatetime"
-									v-model="record_.time"
-								/>
-							</v-col>
-						</v-row>
 					</div>
 				</v-card-text>
 				<v-card-actions>
@@ -95,7 +40,6 @@
 					</v-btn>
 					<v-btn
 						color="primary"
-						:disabled="disableAccept"
 						@click="hideRecordHandlerDialog(true)"
 					>
 						{{ acceptText }}
@@ -107,6 +51,7 @@
 </template>
 
 <script>
+	import requester from '@/helpers/requester'
 	export default {
 		name: 'RecordHandler',
 		components: {
@@ -197,18 +142,33 @@
 					}
 				}
 				return false
-			},
-			disableAccept() {
-				const { date, time } = this.record_
-				return this.updateMode ? !this.wasUpdated : !(date && time)
 			}
 		},
 		methods: {
-			hideRecordHandlerDialog(save) {
-				this.recordHandlerDialog = false
-				this.$emit('update:show', false)
+			async hideRecordHandlerDialog(save) {
+				let closeDialog = true
 				if ( save ) {
-					console.log('Request sending for saving the new data must be implemented')
+					if ( this.updateMode ) {
+						console.log('Request sending for updating must be implemented')
+					} else {
+						closeDialog = await this.createRecord()
+					}
+				}
+				if ( closeDialog ) {
+					this.recordHandlerDialog = false
+					this.$emit('update:show', false)
+				}
+			},
+			async createRecord() {
+				const { record_: { fields }, happening: { id } } = this
+				let record = { happeningId: id, fields }
+				const response = await requester.post(`/happenings/${id}/records`, record)
+				switch ( response && response.status ) {
+					case 201:
+						return true
+					default:
+						this.$showErrorDialog()
+						return false
 				}
 			},
 			getFieldValue(happeningFieldId) {

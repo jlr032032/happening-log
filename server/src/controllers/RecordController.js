@@ -126,6 +126,8 @@ const internal = {
 			.reverse()
 			.filter( ({ id }, index, reversed) => index===reversed.findIndex( data => id===data.id ) )
 			.reverse()
+			// Sorts by field id
+			.sort( (a, b) => a.id-b.id )
 	},
 
 	error({code, fieldId, happeningId, subMessage}) {
