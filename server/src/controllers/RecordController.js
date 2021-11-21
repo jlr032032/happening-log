@@ -122,8 +122,9 @@ const internal = {
 				data.value = value
 				return data
 			})
+			// Keeps only the the last given value for every field id
 			.reverse()
-			.filter( ({ name }, index, reversed) => index===reversed.findIndex( data => name===data.name ) )
+			.filter( ({ id }, index, reversed) => index===reversed.findIndex( data => id===data.id ) )
 			.reverse()
 	},
 
