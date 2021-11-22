@@ -63,7 +63,7 @@
 			updateMode: { type: Boolean, default: false }
 		},
 		data: () => ({
-			useCurrentDatetime: true,
+			useCurrentDatetime: null,
 			timeListeningId: null,
 			time: {
 				value: null,
@@ -75,7 +75,12 @@
 			}
 		}),
 		created: async function() {
-			this.timeListeningId = await this.startTimeListening()
+			if ( this.updateMode ) {
+				this.useCurrentDatetime = false
+			} else {
+				this.useCurrentDatetime = true
+				this.timeListeningId = await this.startTimeListening()
+			}
 		},
 		beforeDestroy() {
 			this.stopTimeListening(this.timeListeningId)
