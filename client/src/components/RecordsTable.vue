@@ -9,8 +9,6 @@
 			<template v-slot:default>
 				<thead>
 					<tr>
-						<th class="text-left"> Fecha </th>
-						<th class="text-left"> Hora </th>
 						<th
 							v-for="(field, happeningFieldIndex) in happening.fields"
 							:key="happeningFieldIndex"
@@ -26,8 +24,6 @@
 						v-for="(record, recordIndex) in records"
 						:key="recordIndex"
 					>
-						<td>{{ formatDate(record.date) }}</td>
-						<td>{{ formatTime(record.time) }}</td>
 						<td
 							v-for="(field, happeningFieldIndex) in happening.fields"
 							:key="happeningFieldIndex"
@@ -88,18 +84,24 @@
 		}),
 		methods: {
 			formatDate(date) {
-				return new Date(date).toLocaleDateString('es-MX', { year: 'numeric', month: 'numeric', day: 'numeric' })
+				const formatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' }
+				return new Date(date.local).toLocaleDateString('es-MX', formatOptions)
 			},
-			formatTime(time) {
-				const dateObject = new Date(0, 0, 0, ...time.split(':'))
-				return dateObject.toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' })
+			formatDatetime(datetime) {
+				const datePart = this.formatDate(datetime)
+				datetime = new Date(datetime.local)
+				const timeFormatOptions = { hour12: true, hour: '2-digit', minute: '2-digit' }
+				const timePart = datetime
+					.toLocaleTimeString('es-MX', timeFormatOptions)
+					.replace(/^0/, '')
+				return `${datePart} ${timePart}`
 			},
 			getFieldValue(record, metadata) {
 				const field = record.fields.find( ({ id }) => metadata.id===id )
 				if ( field ) {
 					switch ( metadata.type ) {
 						case 'date': return this.formatDate(field.value)
-						case 'time': return this.formatTime(field.value)
+						case 'datetime': return this.formatDatetime(field.value)
 						default: return field.value
 					}
 				}
