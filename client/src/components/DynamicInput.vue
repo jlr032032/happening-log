@@ -17,6 +17,7 @@
 	/>
 	<datetime-input
 		v-else-if="isDatetimeInput"
+		:updateMode="updateMode"
 		:value="value"
 		@change="handleInput"
 	/>
@@ -32,7 +33,8 @@
 		},
 		props: {
 			type: { type: String, default: 'text' },
-			value: {}
+			updateMode: { type: Boolean, default: false },
+			value: true
 		},
 		model: {
 			prop: 'value',
