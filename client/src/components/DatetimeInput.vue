@@ -81,6 +81,7 @@
 				this.useCurrentDatetime = true
 				this.timeListeningId = await this.startTimeListening()
 			}
+			this.setReceivedDatetime(this.value)
 		},
 		beforeDestroy() {
 			this.stopTimeListening(this.timeListeningId)
@@ -90,25 +91,7 @@
 				this.useCurrentDatetime = !value
 			},
 			value(value) {
-				if ( value!==this.datetime ) {
-					if ( value && value.utc ) {
-						const { date, time } = this.getDateAndTime(value.utc)
-						this.date.lastNotCurrent = date
-						this.time.lastNotCurrent = time
-						if ( !this.useCurrentDatetime ) {
-							this.date.value = date
-							this.time.value = time
-						}
-					} else {
-						const nullDate = { utc: null, local: null }
-						this.date.lastNotCurrent = nullDate
-						this.time.lastNotCurrent = null
-						if ( !this.useCurrentDatetime ) {
-							this.date.value = nullDate
-							this.time.value = null
-						}
-					}
-				}
+				this.setReceivedDatetime(value)
 			},
 			currentDatetime(value) {
 				if ( this.useCurrentDatetime ) {
@@ -161,6 +144,27 @@
 				date.setSeconds(0)
 				date = dateHelper.utcAndLocal(date)
 				return { date, time }
+			},
+			setReceivedDatetime(value) {
+				if ( value!==this.datetime ) {
+					if ( value && value.utc ) {
+						const { date, time } = this.getDateAndTime(value.utc)
+						this.date.lastNotCurrent = date
+						this.time.lastNotCurrent = time
+						if ( !this.useCurrentDatetime ) {
+							this.date.value = date
+							this.time.value = time
+						}
+					} else {
+						const nullDate = { utc: null, local: null }
+						this.date.lastNotCurrent = nullDate
+						this.time.lastNotCurrent = null
+						if ( !this.useCurrentDatetime ) {
+							this.date.value = nullDate
+							this.time.value = null
+						}
+					}
+				}
 			},
 			setSelectedDate(value) {
 				const { useCurrentDatetime, date } = this
