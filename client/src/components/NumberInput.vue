@@ -43,7 +43,7 @@
 			value_: null
 		}),
 		created() {
-			if ( this.value ) {
+			if ( ![ null, undefined ].includes(this.value)  ) {
 				this.value_ = this.value
 			}
 		},
