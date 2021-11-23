@@ -113,7 +113,6 @@
 			},
 			async useCurrentDate(newValue) {
 				if ( newValue ) {
-					console.log('DateInput: Starting time listening')
 					this.timeListeningId = await this.startTimeListening()
 				} else {
 					let { date, date: { lastNotCurrent } } = this
