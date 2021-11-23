@@ -7,6 +7,7 @@
 					<div class="mr-2 flex-grow-1 custom--date-input">
 						<date-input
 							placeholder="Fecha"
+							:currentDateSelector="false"
 							:disabled="useCurrentDatetime"
 							:value = date.value
 							@change="setSelectedDate"
