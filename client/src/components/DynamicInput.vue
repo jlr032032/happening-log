@@ -12,7 +12,8 @@
 	/>
 	<date-input
 		v-else-if="isDateInput"
-		:date="value"
+		:currentDateSelector="!updateMode"
+		:value="value"
 		@change="handleInput"
 	/>
 	<datetime-input
