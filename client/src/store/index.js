@@ -39,6 +39,9 @@ export default new Vuex.Store({
 			internals.linkParentLabels(state.labels, null)
 		},
 		startTimeListening({ commit }, listenerId) {
+			let now = new Date()
+			now.setMilliseconds(0)
+			commit('setTime', now)
 			if ( internals.listeners.includes(listenerId) ) {
 				return listenerId
 			} else {
@@ -80,7 +83,7 @@ const internals = {
 	},
 	updateTime(commit) {
 		this.timeoutId = setTimeout( () => this.updateTime(commit), 1000-Date.now()%1000 )
-		const now = new Date()
+		let now = new Date()
 		now.setMilliseconds(0)
 		commit('setTime', now)
 	}
