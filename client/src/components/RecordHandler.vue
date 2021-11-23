@@ -10,22 +10,21 @@
 					<h3 class="custom--title-1 primary--text">{{ happening_.name }}</h3>
 				</v-card-title>
 				<v-card-text class="mt-4">
-					<div v-if="hasFields">
-						<h4 class="custom--title-4 primary--text"> Características </h4>
-						<div class="d-flex mt-2">
-							<div>
-								<div
-									v-for="(field, index) of happening_.fields"
-									:key="index"
-									class="d-flex align-center"
-								>
-									<label class="mr-7">{{ field.name }}:</label>
-									<dynamic-input
-										:type="field.type"
-										:value="getFieldValue(field.id)"
-										@input="setFieldValue(field.id, $event)"
-									/>
-								</div>
+					<h4 class="custom--title-4 primary--text"> Características </h4>
+					<div class="d-flex mt-2">
+						<div>
+							<div
+								v-for="(field, index) of happening_.fields"
+								:key="index"
+								class="d-flex align-center"
+							>
+								<label class="mr-7">{{ field.name }}:</label>
+								<dynamic-input
+									:type="field.type"
+									:updateMode="updateMode"
+									:value="getFieldValue(field.id)"
+									@input="setFieldValue(field.id, $event)"
+								/>
 							</div>
 						</div>
 					</div>
@@ -66,7 +65,6 @@
 		},
 		data: () => ({
 			recordHandlerDialog: null,
-			datetimeSource: 'other',
 			happening_: {},
 			record_: {
 				date: null,
@@ -79,19 +77,20 @@
 			this.happening_ = this.happening || {}
 			if ( this.updateMode ) {
 				this.record_ = JSON.parse( JSON.stringify(this.record) )
-				this.datetimeSource = 'other'
-			} else {
-				this.datetimeSource = 'current'
 			}
 		},
 		watch: {
 			show(newShowValue) {
-				if ( newShowValue && !this.updateMode ) {
-					this.datetimeSource = 'current'
-					this.record_ = {
-						date: null,
-						time: null,
-						fields: []
+				if ( newShowValue ) {
+					if ( this.updateMode ) {
+						this.record_ = JSON.parse( JSON.stringify(this.record) )
+					} else {
+						this.datetimeSource = 'current'
+						this.record_ = {
+							date: null,
+							time: null,
+							fields: []
+						}
 					}
 				}
 				this.recordHandlerDialog = newShowValue
@@ -111,9 +110,6 @@
 			title() {
 				return this.updateMode ? 'Modificar registro' : 'Nuevo registro'
 			},
-			hasFields() {
-				return Boolean( Array.isArray(this.happening_.fields) && this.happening_.fields.length )
-			},
 			useCurrentDatetime() {
 				return !this.updateMode && this.datetimeSource==='current'
 			},
@@ -122,26 +118,6 @@
 			},
 			updateMode() {
 				return Boolean(this.record)
-			},
-			wasUpdated() {
-				const { record, record_ } = this
-				if ( this.updateMode ) {
-					if ( record.date===record_.date && record.time===record_.time ) {
-						let [ fields, fields_ ] = [ record.fields || [], record_.fields || [] ]
-						if ( fields.length!==fields_.length ) {
-							return true
-						}
-						for (let field of fields ) {
-							let field_ = fields_.find( ({ id }) => field.id===id )
-							if ( !field_ || field.value!==field_.value ) {
-								return true
-							}
-						}
-					} else {
-						return true
-					}
-				}
-				return false
 			}
 		},
 		methods: {
@@ -149,7 +125,7 @@
 				let closeDialog = true
 				if ( save ) {
 					if ( this.updateMode ) {
-						console.log('Request sending for updating must be implemented')
+						closeDialog = await this.updateRecord()
 					} else {
 						closeDialog = await this.createRecord()
 					}
@@ -165,6 +141,20 @@
 				const response = await requester.post(`/happenings/${id}/records`, record)
 				switch ( response && response.status ) {
 					case 201:
+						return true
+					default:
+						this.$showErrorDialog()
+						return false
+				}
+			},
+			async updateRecord() {
+				let { record_, happening } = this
+				record_.fields = record_.fields.filter( field => field.value )
+				const endpoint = `/happenings/${happening.id}/records/${record_.id}`
+				const response = await requester.put(endpoint, record_)
+				switch( response && response.status ) {
+					case 200:
+						this.$emit('update:record', response.data)
 						return true
 					default:
 						this.$showErrorDialog()
