@@ -63,6 +63,10 @@
 			value: { type: Object },
 			updateMode: { type: Boolean, default: false }
 		},
+		model: {
+			prop: 'value',
+			event: 'change'
+		},
 		data: () => ({
 			useCurrentDatetime: null,
 			timeListeningId: null,
