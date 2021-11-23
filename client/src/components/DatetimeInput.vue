@@ -76,12 +76,7 @@
 			}
 		}),
 		created: async function() {
-			if ( this.updateMode ) {
-				this.useCurrentDatetime = false
-			} else {
-				this.useCurrentDatetime = true
-				this.timeListeningId = await this.startTimeListening()
-			}
+			this.useCurrentDatetime = !this.updateMode
 			this.setReceivedDatetime(this.value)
 		},
 		beforeDestroy() {
