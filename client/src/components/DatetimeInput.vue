@@ -120,8 +120,8 @@
 				const date = this.date.value
 				const time = this.time.value
 				let datetime = null
-				if ( time && date && date.utc ) {
-					datetime = new Date(date.utc)
+				if ( time && date && date.local ) {
+					datetime = new Date(date.local)
 					const { hours, minutes, seconds } = time
 					datetime.setHours(hours)
 					datetime.setMinutes(minutes)
@@ -147,8 +147,8 @@
 			},
 			setReceivedDatetime(value) {
 				if ( value!==this.datetime ) {
-					if ( value && value.utc ) {
-						const { date, time } = this.getDateAndTime(value.utc)
+					if ( value && value.local ) {
+						const { date, time } = this.getDateAndTime(value.local)
 						this.date.lastNotCurrent = date
 						this.time.lastNotCurrent = time
 						if ( !this.useCurrentDatetime ) {
