@@ -46,7 +46,7 @@
 									x-small
 									elevation="0"
 									class="transparent primary--text"
-									@click="deleteRecord(recordIndex)"
+									@click="deleteRecord(record.id, recordIndex)"
 								>
 									<v-icon> mdi-delete </v-icon>
 								</v-btn>
@@ -68,6 +68,7 @@
 
 <script>
 	import { mapState } from 'vuex'
+	import requester from '@/helpers/requester'
 	export default {
 		name: 'RecordsTable',
 		components: {
@@ -111,9 +112,15 @@
 				this.recordHandling.record = record
 				this.recordHandling.dialog = true
 			},
-			deleteRecord(index) {
-				this.records.splice(index, 1)
-				console.log('Item deletion should be persisted')
+			async deleteRecord(id, index) {
+				const response = await requester.delete(`/happenings/records/${id}`)
+				switch ( response && response.status ) {
+					case 200:
+						this.records.splice(index, 1)
+						break
+					default:
+						this.$showErrorDialog()
+				}
 			}
 		}
 	}
