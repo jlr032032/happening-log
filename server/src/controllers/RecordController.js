@@ -66,8 +66,10 @@ const RecordController = {
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
-				const { userId, params: { happeningId } } = request
-				let records = await Record.readByHappeningId(userId, happeningId)
+				let { userId, params: { happeningId }, query: { last } } = request
+				last = Number(last)
+				last = Number.isInteger(last) && last>0 ? last : null
+				let records = await Record.readByHappeningId(userId, happeningId, last)
 				records = records.map( record => record.clientFields({ remove: ['userId'] }))
 				response.status(200).json(records)
 			}

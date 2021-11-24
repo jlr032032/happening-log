@@ -52,7 +52,10 @@
 					:happening="happening"
 					:records="records"
 				/>
-				<router-link :to="`/sucesos/${happening.id}/registros`">
+				<router-link
+					v-if="availableRecords"
+					:to="`/sucesos/${happening.id}/registros`"
+				>
 					<v-btn class="mt-2 primary white--text custom--full-width"> Ver todos los registros </v-btn>
 				</router-link>
 			</div>
@@ -111,7 +114,7 @@
 </template>
 
 <script>
-	import { mapState } from 'vuex'
+	import { mapState, mapMutations } from 'vuex'
 	import { normalizeWhiteSpaces } from 'normalize-text'
 	import helpers from '@/mixins/helpers'
 	import requester from '@/helpers/requester'
@@ -132,63 +135,50 @@
 			},
 			temporaryHappening: {
 				name: ''
-			},
-			happening: {
-				id: 1,
-				name: '',
-				labels: [],
-				fields: []
-			},
-			records: [
-				{ date: '2021-05-14T04:00:00.000Z', time: '19:00', fields: [
-					{ id: 1, value: 'Quinto tema de estudio' },
-					{ id: 2, value: 2 },
-					{ id: 3, value: '2021-05-14T04:00:00.000Z' },
-					{ id: 4, value: '17:00' }
-				]},
-				{ date: '2021-05-10T04:00:00.000Z', time: '18:00', fields: [
-					{ id: 1, value: 'Cuarto tema de estudio' },
-					{ id: 2, value: 2 },
-					{ id: 3, value: '2021-05-10T04:00:00.000Z' }
-				]},
-				{ date: '2021-05-02T04:00:00.000Z', time: '17:00', fields: [
-					{ id: 1, value: 'Tercer tema de estudio' },
-					{ id: 2, value: 1 },
-					{ id: 3, value: '2021-05-02T04:00:00.000Z' },
-					{ id: 4, value: '17:00' },
-				]}
-			]
+			}
 		}),
 		async created() {
 			this.messageScreen = { show: true, text: 'Cargando' }
-			const results = await Promise.all([
+			const [ result1, result2, result3 ] = await Promise.all([
+				this.fetchLastRecords(this.$route.params.id),
 				this.fetchLabels(),
-				requester.get(`happenings/${this.$route.params.id}`)
+				this.fetchHappening(this.$route.params.id)
 			])
-			const response = results[1]
-			switch ( response && response.status ) {
-				case 200:
-					const { id, name, labels, fields } = response.data
-					this.happening = { id, name, fields }
-					if ( labels ) {
-						let labelsIds = labels.map( label => label.id )
-						let labelsReferences = []
-						this.findlabelsReferences(labelsIds, this.labels, labelsReferences)
-						this.happening.labels = labelsReferences
+			if ( result3.success ) {
+				if ( result2.success ) {
+					if ( !result1.success ) {
+						this.$showErrorDialog({ message: 'No se pudo obtener los últimos registros en este momento' })
 					}
-					this.messageScreen.show = false
-					break
-				case 404:
+					this.messageScreen = { show: false, text: '' }
+				} else {
+					this.messageScreen.text = 'No se pudo obtener la información en este momento'
+				}
+			} else {
+				if ( result3.status===404 ) {
 					this.messageScreen.text = 'Suceso no encontrado'
-					break
-				default:
-					this.messageScreen.text = 'No se puede procesar la acción en este momento'
+				} else {
+					this.messageScreen.text = 'No se pudo obtener la información en este momento'
+				}
 			}
 		},
 		computed: {
-			...mapState(['labels'])
+			...mapState(['labels', 'records', 'happening']),
+			availableRecords() {
+				return this.records && this.records.length
+			}
 		},
 		methods: {
+			...mapMutations(['setRecords']),
+			async fetchLastRecords(happeningId) {
+				this.$store.commit('setRecords', [])
+				const response = await requester.get(`/happenings/${happeningId}/records?last=3`)
+				if ( response && response.status===200 ) {
+					this.$store.commit('setRecords', response.data)
+					return { success: true }
+				} else {
+					return { success: false }
+				}
+			},
 			findlabelsReferences(ids, labels, references) {
 				for (let label of labels) {
 					if ( !ids.length ) {
@@ -213,7 +203,7 @@
 					const response = await requester.put(`/happenings/${id}`, happening)
 					switch ( response && response.status ) {
 						case 200:
-							this.happening.name = newName
+							this.$store.commit('setHappening', response.data)
 							break
 						default:
 							this.$showErrorDialog()
@@ -227,7 +217,7 @@
 				const response = await requester.put(`/happenings/${id}`, happening)
 				switch ( response && response.status ) {
 					case 200:
-						this.happening.labels = labels
+						this.$store.commit('setHappening', response.data)
 						break
 					default:
 						this.$showErrorDialog()
@@ -240,7 +230,7 @@
 				const response = await requester.put(`/happenings/${id}`, happening)
 				switch ( response && response.status ) {
 					case 200:
-						this.happening.fields = fields
+						this.$store.commit('setHappening', response.data)
 						break
 					default:
 						this.$showErrorDialog()

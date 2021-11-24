@@ -37,11 +37,19 @@ export default {
 				case 200:
 					this.$store.commit('setLabels', response.data)
 					this.$store.dispatch('linkParentLabels')
-					break
+					return { success: true }
 				default:
-					const message = 'No se pueden obtener las etiquetas en este momento.'
-					this.$showErrorDialog({ message })
+					return { success: false }
 			}
-		}
+		},
+		async fetchHappening(id) {
+			const happeningId = id
+			const response = await requester.get(`/happenings/${happeningId}`)
+			if ( response && response.status===200 ) {
+				this.$store.commit('setHappening', response.data)
+				return { success: true, data: response.data, status: 200 }
+			}
+			return { success: false, data: response.data, status: response.status }
+		},
 	}
 }

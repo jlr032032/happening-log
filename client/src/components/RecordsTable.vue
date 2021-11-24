@@ -1,67 +1,78 @@
 <template>
 	<div>
 
-		<v-simple-table
-			dense
-			class="transparent mt-3"
-			mobile-breakpoint="0"
-		>
-			<template v-slot:default>
-				<thead>
-					<tr>
-						<th
-							v-for="(field, happeningFieldIndex) in happening.fields"
-							:key="happeningFieldIndex"
-							class="text-left"
-						>
-							{{ field.name }}
-						</th>
-						<th> Opciones </th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr
-						v-for="(record, recordIndex) in records"
-						:key="recordIndex"
-					>
-						<td
-							v-for="(field, happeningFieldIndex) in happening.fields"
-							:key="happeningFieldIndex"
-						>
-							{{ getFieldValue(record, field) }}
-						</td>
-						<td>
-							<div class="custom--item-actions">
-								<v-btn
-									fab
-									x-small
-									elevation="0"
-									class="transparent primary--text mr-1"
-									@click="showRecordHandler(record)"
-								>
-									<v-icon> mdi-pencil </v-icon>
-								</v-btn>
-								<v-btn
-									fab
-									x-small
-									elevation="0"
-									class="transparent primary--text"
-									@click="deleteRecord(record.id, recordIndex)"
-								>
-									<v-icon> mdi-delete </v-icon>
-								</v-btn>
-							</div>
-						</td>
-					</tr>
-				</tbody>
-			</template>
-		</v-simple-table>
+		<template v-if="availableRecords">
 
-		<record-handler
-			:show.sync="recordHandling.dialog"
-			:happening="happening"
-			:record="recordHandling.record"
-		/>
+			<v-simple-table
+				dense
+				class="transparent mt-3"
+				mobile-breakpoint="0"
+			>
+				<template v-slot:default>
+					<thead>
+						<tr>
+							<th
+								v-for="(field, happeningFieldIndex) in happening.fields"
+								:key="happeningFieldIndex"
+								class="text-left"
+							>
+								{{ field.name }}
+							</th>
+							<th> Opciones </th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr
+							v-for="(record, recordIndex) in records"
+							:key="recordIndex"
+						>
+							<td
+								v-for="(field, happeningFieldIndex) in happening.fields"
+								:key="happeningFieldIndex"
+							>
+								{{ getFieldValue(record, field) }}
+							</td>
+							<td>
+								<div class="custom--item-actions">
+									<v-btn
+										fab
+										x-small
+										elevation="0"
+										class="transparent primary--text mr-1"
+										@click="showRecordHandler(record)"
+									>
+										<v-icon> mdi-pencil </v-icon>
+									</v-btn>
+									<v-btn
+										fab
+										x-small
+										elevation="0"
+										class="transparent primary--text"
+										@click="deleteRecord(record.id, recordIndex)"
+									>
+										<v-icon> mdi-delete </v-icon>
+									</v-btn>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</template>
+			</v-simple-table>
+
+			<record-handler
+				:show.sync="recordHandling.dialog"
+				:happening="happening"
+				:record="recordHandling.record"
+			/>
+
+		</template>
+
+		<p
+			v-else
+			class="mt-3 mb-6 custom--no-data-text"
+		>
+			No hay registros disponibles todavía.
+		</p>
 
 	</div>
 </template>
@@ -81,7 +92,10 @@
 			},
 		}),
 		computed: {
-			...mapState(['happening', 'records'])
+			...mapState(['happening', 'records']),
+			availableRecords() {
+				return this.records && this.records.length
+			}
 		},
 		methods: {
 			formatDate(date) {

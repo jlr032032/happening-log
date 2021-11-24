@@ -39,8 +39,17 @@ class Record {
 		await RecordOdm.deleteMany({ userId, happeningId })
 	}
 
-	async readByHappeningId(userId, happeningId) {
-		return await RecordOdm.find({ userId, happeningId })
+	async readByHappeningId(userId, happeningId, last) {
+		if ( last ) {
+			return await RecordOdm
+				.find({ userId, happeningId })
+				.sort({ _id: -1 })
+				.limit(last)
+		} else {
+			return await RecordOdm
+				.find({ userId, happeningId })
+				.sort({ _id: -1 })
+		}
 	}
 
 	async update(userId, happening, recordId, recordData) {
