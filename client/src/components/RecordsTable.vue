@@ -67,14 +67,11 @@
 </template>
 
 <script>
+	import { mapState } from 'vuex'
 	export default {
 		name: 'RecordsTable',
 		components: {
 			RecordHandler: () => import('@/components/RecordHandler')
-		},
-		props: {
-			happening: { type: Object, default: () => ({ name: '', fields: [] }) },
-			records: { type: Array, default: () => [] }
 		},
 		data: () => ({
 			recordHandling: {
@@ -82,6 +79,9 @@
 				record: null
 			},
 		}),
+		computed: {
+			...mapState(['happening', 'records'])
+		},
 		methods: {
 			formatDate(date) {
 				const formatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' }

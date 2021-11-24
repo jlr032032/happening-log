@@ -73,13 +73,10 @@
 				</div>
 			</div>
 
-			<records-table
-				:happening="happening"
-				:records="pageRecords"
-			/>
+			<records-table />
 		</div>
 
-		<router-link :to="`/sucesos/${happening.id}`">
+		<router-link :to="`/sucesos/${$route.params.id}`">
 			<v-btn
 				fab
 				medium
@@ -95,6 +92,7 @@
 </template>
 
 <script>
+	import { mapState, mapMutations } from 'vuex'
 	import requester from '@/helpers/requester'
 	export default {
 		name: 'Records',
@@ -112,9 +110,7 @@
 				itemsPerPage: 6,
 				menu: false,
 				temporaryItemsPerPage: null
-			},
-			happening: { id: null },
-			records: []
+			}
 		}),
 		async created() {
 			this.messageScreen.show = true
@@ -139,8 +135,10 @@
 			}
 		},
 		computed: {
+			...mapState(['records', 'happening']),
 			totalPages() {
-				return Math.ceil(this.records.length/this.pagination.itemsPerPage)
+				const totalRecords = this.records ? this.records.length : 0
+				return Math.ceil(totalRecords/this.pagination.itemsPerPage)
 			},
 			pageRecords() {
 				const { currentPage, itemsPerPage } = this.pagination
@@ -149,11 +147,12 @@
 			}
 		},
 		methods: {
+			...mapMutations(['setRecords', 'setHappening']),
 			async fetchHappening() {
 				const happeningId = this.$route.params.id
 				const response = await requester.get(`/happenings/${happeningId}`)
 				if ( response && response.status===200 ) {
-					this.happening = response.data
+					this.setHappening(response.data)
 					return true
 				}
 				return false
@@ -162,7 +161,7 @@
 				const happeningId = this.$route.params.id
 				const response = await requester.get(`/happenings/${happeningId}/records`)
 				if ( response && response.status===200 ) {
-					this.records = response.data
+					this.setRecords(response.data)
 					return true
 				}
 				return false

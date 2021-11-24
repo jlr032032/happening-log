@@ -50,6 +50,7 @@
 </template>
 
 <script>
+	import { mapState, mapMutations } from 'vuex'
 	import requester from '@/helpers/requester'
 	export default {
 		name: 'RecordHandler',
@@ -60,7 +61,6 @@
 		},
 		props: {
 			show: { type: Boolean, default: false },
-			happening: { type: Object },
 			record: { type: Object }
 		},
 		data: () => ({
@@ -107,6 +107,7 @@
 			}
 		},
 		computed: {
+			...mapState(['happening']),
 			title() {
 				return this.updateMode ? 'Modificar registro' : 'Nuevo registro'
 			},
@@ -121,6 +122,7 @@
 			}
 		},
 		methods: {
+			...mapMutations(['replaceRecord']),
 			async hideRecordHandlerDialog(save) {
 				let closeDialog = true
 				if ( save ) {
@@ -154,7 +156,7 @@
 				const response = await requester.put(endpoint, record_)
 				switch( response && response.status ) {
 					case 200:
-						this.$emit('update:record', response.data)
+						this.replaceRecord(response.data)
 						return true
 					default:
 						this.$showErrorDialog()

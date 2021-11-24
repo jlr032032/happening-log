@@ -12,6 +12,8 @@ export default new Vuex.Store({
 			acceptText: 'Cerrar'
 		},
 		labels: [],
+		records: [],
+		happening: null,
 		currentDatetime: null
 	},
 	mutations: {
@@ -32,6 +34,16 @@ export default new Vuex.Store({
 		},
 		setLabels(state, newLabels) {
 			state.labels = newLabels
+		},
+		setRecords(state, newRecords) {
+			state.records = newRecords
+		},
+		replaceRecord(state, record) {
+			const index = state.records.findIndex( ({ id }) => record.id===id )
+			index && state.records.splice(index, 1, record)
+		},
+		setHappening(state, newHappening) {
+			state.happening = newHappening
 		}
 	},
 	actions: {
