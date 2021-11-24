@@ -48,7 +48,7 @@
 										x-small
 										elevation="0"
 										class="transparent primary--text"
-										@click="deleteRecord(record.id, recordIndex)"
+										@click="deleteRecord(record.id)"
 									>
 										<v-icon> mdi-delete </v-icon>
 									</v-btn>
@@ -78,7 +78,7 @@
 </template>
 
 <script>
-	import { mapState } from 'vuex'
+	import { mapState, mapMutations } from 'vuex'
 	import requester from '@/helpers/requester'
 	export default {
 		name: 'RecordsTable',
@@ -98,6 +98,7 @@
 			}
 		},
 		methods: {
+			...mapMutations(['removeRecord']),
 			formatDate(date) {
 				const formatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' }
 				return new Date(date.local).toLocaleDateString('es-MX', formatOptions)
@@ -126,11 +127,11 @@
 				this.recordHandling.record = record
 				this.recordHandling.dialog = true
 			},
-			async deleteRecord(id, index) {
+			async deleteRecord(id) {
 				const response = await requester.delete(`/happenings/records/${id}`)
 				switch ( response && response.status ) {
 					case 200:
-						this.records.splice(index, 1)
+						this.removeRecord(id)
 						break
 					default:
 						this.$showErrorDialog()

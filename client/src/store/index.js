@@ -40,7 +40,11 @@ export default new Vuex.Store({
 		},
 		replaceRecord(state, record) {
 			const index = state.records.findIndex( ({ id }) => record.id===id )
-			index && state.records.splice(index, 1, record)
+			index>-1 && state.records.splice(index, 1, record)
+		},
+		removeRecord(state, recordId) {
+			const index = state.records.findIndex( ({ id }) => recordId===id )
+			index>-1 && state.records.splice(index, 1)
 		},
 		setHappening(state, newHappening) {
 			state.happening = newHappening
