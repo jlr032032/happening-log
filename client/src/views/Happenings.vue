@@ -105,7 +105,7 @@
 </template>
 
 <script>
-	import { mapState } from 'vuex'
+	import { mapState, mapMutations } from 'vuex'
 	import { normalizeText } from 'normalize-text'
 	import helpers from '@/mixins/helpers'
 	import requester from '@/helpers/requester'
@@ -169,6 +169,7 @@
 			}
 		},
 		methods: {
+			...mapMutations(['setHappening']),
 			addHappening(newHappening) {
 				this.happenings.push(newHappening)
 			},
@@ -187,7 +188,7 @@
 				this.newHappeningDialog = value
 			},
 			showRecordHandler(happening) {
-				this.recordHandling.happening = happening
+				this.setHappening(happening)
 				this.recordHandling.dialog = true
 			}
 		}
