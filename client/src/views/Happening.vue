@@ -1,12 +1,10 @@
 <template>
 	<div class="custom--with-fixed-buttons">
 
-		<div
+		<message-screen
 			v-if="messageScreen.show"
-			class="d-flex justify-center custom--loading-screen"
-		>
-			<p class="align-self-center custom--title-2 primary--text">{{ messageScreen.text }}</p>
-		</div>
+			:message="messageScreen.message"
+		/>
 
 		<div
 			v-else
@@ -123,6 +121,7 @@
 		name: 'Happening',
 		mixins: [ helpers ],
 		components: {
+			MessageScreen: () => import('@/components/MessageScreen'),
 			LabelSelect: () => import('@/components/LabelSelect'),
 			FieldHandler: () => import('@/components/FieldHandler'),
 			RecordsTable: () => import('@/components/RecordsTable')
@@ -131,14 +130,14 @@
 			showDeletionDialog: false,
 			messageScreen: {
 				show: false,
-				text: ''
+				message: ''
 			},
 			temporaryHappening: {
 				name: ''
 			}
 		}),
 		async created() {
-			this.messageScreen = { show: true, text: 'Cargando' }
+			this.messageScreen = { show: true, message: 'Cargando' }
 			const [ result1, result2, result3 ] = await Promise.all([
 				this.fetchLastRecords(this.$route.params.id),
 				this.fetchLabels(),
@@ -149,15 +148,15 @@
 					if ( !result1.success ) {
 						this.$showErrorDialog({ message: 'No se pudo obtener los últimos registros en este momento' })
 					}
-					this.messageScreen = { show: false, text: '' }
+					this.messageScreen = { show: false, message: '' }
 				} else {
-					this.messageScreen.text = 'No se pudo obtener la información en este momento'
+					this.messageScreen.message = 'No se pudo obtener la información en este momento'
 				}
 			} else {
 				if ( result3.status===404 ) {
-					this.messageScreen.text = 'Suceso no encontrado'
+					this.messageScreen.message = 'Suceso no encontrado'
 				} else {
-					this.messageScreen.text = 'No se pudo obtener la información en este momento'
+					this.messageScreen.message = 'No se pudo obtener la información en este momento'
 				}
 			}
 		},
@@ -254,9 +253,3 @@
 		}
 	}
 </script>
-
-<style scoped>
-	.custom--loading-screen {
-		height: calc(100vh - 162px)
-	}
-</style>
