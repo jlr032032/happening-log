@@ -49,6 +49,7 @@
 				<records-table
 					:happening="happening"
 					:records="records"
+					:fetchAfterDelete="true"
 				/>
 				<router-link
 					v-if="availableRecords"
@@ -168,16 +169,6 @@
 		},
 		methods: {
 			...mapMutations(['setRecords']),
-			async fetchLastRecords(happeningId) {
-				this.$store.commit('setRecords', [])
-				const response = await requester.get(`/happenings/${happeningId}/records?last=3`)
-				if ( response && response.status===200 ) {
-					this.$store.commit('setRecords', response.data)
-					return { success: true }
-				} else {
-					return { success: false }
-				}
-			},
 			findlabelsReferences(ids, labels, references) {
 				for (let label of labels) {
 					if ( !ids.length ) {

@@ -80,10 +80,15 @@
 <script>
 	import { mapState, mapMutations } from 'vuex'
 	import requester from '@/helpers/requester'
+	import helpers from '@/mixins/helpers'
 	export default {
 		name: 'RecordsTable',
+		mixins: [ helpers ],
 		components: {
 			RecordHandler: () => import('@/components/RecordHandler')
+		},
+		props: {
+			fetchAfterDelete: { type: Boolean, default: false }
 		},
 		data: () => ({
 			recordHandling: {
@@ -132,6 +137,7 @@
 				switch ( response && response.status ) {
 					case 200:
 						this.removeRecord(id)
+						this.fetchAfterDelete && await this.fetchLastRecords(this.happening.id)
 						break
 					default:
 						this.$showErrorDialog()

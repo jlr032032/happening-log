@@ -51,5 +51,15 @@ export default {
 			}
 			return { success: false, data: response.data, status: response.status }
 		},
+		async fetchLastRecords(happeningId) {
+			this.$store.commit('setRecords', [])
+			const response = await requester.get(`/happenings/${happeningId}/records?last=3`)
+			if ( response && response.status===200 ) {
+				this.$store.commit('setRecords', response.data)
+				return { success: true }
+			} else {
+				return { success: false }
+			}
+		}
 	}
 }
