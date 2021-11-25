@@ -139,22 +139,23 @@
 		}),
 		async created() {
 			this.messageScreen = { show: true, message: 'Cargando' }
-			const [ result1, result2, result3 ] = await Promise.all([
+			const [ recordsResult, labelsResult, happeningResult ] = await Promise.all([
 				this.fetchLastRecords(this.$route.params.id),
 				this.fetchLabels(),
 				this.fetchHappening(this.$route.params.id)
 			])
-			if ( result3.success ) {
-				if ( result2.success ) {
-					if ( !result1.success ) {
+			if ( happeningResult.success ) {
+				if ( labelsResult.success ) {
+					if ( !recordsResult.success ) {
 						this.$showErrorDialog({ message: 'No se pudo obtener los últimos registros en este momento' })
 					}
+					this.resolveLabelReferences()
 					this.messageScreen = { show: false, message: '' }
 				} else {
 					this.messageScreen.message = 'No se pudo obtener la información en este momento'
 				}
 			} else {
-				if ( result3.status===404 ) {
+				if ( happeningResult.status===404 ) {
 					this.messageScreen.message = 'Suceso no encontrado'
 				} else {
 					this.messageScreen.message = 'No se pudo obtener la información en este momento'
@@ -169,6 +170,12 @@
 		},
 		methods: {
 			...mapMutations(['setRecords']),
+			resolveLabelReferences() {
+				let labelsIds = this.happening.labels.map( label => label.id )
+				let labelsReferences = []
+				this.findlabelsReferences(labelsIds, this.labels, labelsReferences)
+				this.happening.labels = labelsReferences
+			},
 			findlabelsReferences(ids, labels, references) {
 				for (let label of labels) {
 					if ( !ids.length ) {
@@ -208,6 +215,7 @@
 				switch ( response && response.status ) {
 					case 200:
 						this.$store.commit('setHappening', response.data)
+						this.resolveLabelReferences()
 						break
 					default:
 						this.$showErrorDialog()
