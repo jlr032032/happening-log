@@ -23,7 +23,7 @@
 					</thead>
 					<tbody>
 						<tr
-							v-for="(record, recordIndex) in records"
+							v-for="(record, recordIndex) in pageRecords"
 							:key="recordIndex"
 						>
 							<td
@@ -88,7 +88,8 @@
 			RecordHandler: () => import('@/components/RecordHandler')
 		},
 		props: {
-			fetchAfterDelete: { type: Boolean, default: false }
+			fetchAfterDelete: { type: Boolean, default: false },
+			pagination: { type: Object, default: null }
 		},
 		data: () => ({
 			recordHandling: {
@@ -100,6 +101,14 @@
 			...mapState(['happening', 'records']),
 			availableRecords() {
 				return this.records && this.records.length
+			},
+			pageRecords() {
+				const { currentPage, itemsPerPage } = this.pagination || {}
+				if ( currentPage && itemsPerPage ) {
+					const start = (currentPage-1) * itemsPerPage
+					return this.records.slice(start, start+itemsPerPage)
+				}
+				return this.records
 			}
 		},
 		methods: {

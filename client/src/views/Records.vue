@@ -73,7 +73,7 @@
 				</div>
 			</div>
 
-			<records-table />
+			<records-table :pagination="pagination"/>
 		</div>
 
 		<router-link :to="`/sucesos/${$route.params.id}`">
@@ -107,7 +107,7 @@
 			},
 			pagination: {
 				currentPage: 1,
-				itemsPerPage: 6,
+				itemsPerPage: 10,
 				menu: false,
 				temporaryItemsPerPage: null
 			}
@@ -139,11 +139,6 @@
 			totalPages() {
 				const totalRecords = this.records ? this.records.length : 0
 				return Math.ceil(totalRecords/this.pagination.itemsPerPage)
-			},
-			pageRecords() {
-				const { currentPage, itemsPerPage } = this.pagination
-				const start = (currentPage-1) * itemsPerPage
-				return this.records.slice(start, start+itemsPerPage)
 			}
 		},
 		methods: {
