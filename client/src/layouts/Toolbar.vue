@@ -49,6 +49,7 @@
 </template>
 
 <script>
+	import { mapMutations } from 'vuex'
 	import requester from '@/helpers/requester'
 	export default {
 		name: 'Toolbar',
@@ -61,11 +62,13 @@
 			]
 		}),
 		methods: {
+			...mapMutations(['setSignedIn']),
 			async signOut() {
 				const response = await requester.delete('/auth/token')
 				if ( response ) {
 					switch ( response.status ) {
 						case 204:
+							this.setSignedIn(false)
 							this.$router.push('/')
 							break
 						default:

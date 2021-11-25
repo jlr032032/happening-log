@@ -148,6 +148,7 @@
 </template>
 
 <script>
+	import { mapMutations } from 'vuex'
 	import requester from '@/helpers/requester'
 	export default {
 		name: 'Signin',
@@ -162,6 +163,7 @@
 			}
 		}),
 		methods: {
+			...mapMutations(['setSignedIn']),
 			showMessage(text) {
 				this.message.show = true
 				this.message.text = text
@@ -179,6 +181,7 @@
 				if ( response ) {
 					switch ( response.status ) {
 						case 204:
+							this.setSignedIn(true)
 							this.$router.push('/sucesos')
 							break
 						case 401:

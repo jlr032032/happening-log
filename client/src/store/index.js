@@ -11,10 +11,14 @@ export default new Vuex.Store({
 			message: 'No se puede procesar la acción en este momento.',
 			acceptText: 'Cerrar'
 		},
+		signedIn: null,
 		labels: [],
 		records: [],
 		happening: null,
 		currentDatetime: null
+	},
+	getters: {
+		signedIn: (state) => state.signedIn
 	},
 	mutations: {
 		showErrorDialog(state, newErrorDialog) {
@@ -48,6 +52,9 @@ export default new Vuex.Store({
 		},
 		setHappening(state, newHappening) {
 			state.happening = newHappening
+		},
+		setSignedIn(state, value) {
+			state.signedIn = value
 		}
 	},
 	actions: {
