@@ -172,10 +172,12 @@
 			...mapMutations(['setRecords']),
 			resolveLabelReferences() {
 				const { happening, labels } = this
-				let labelsIds = happening.labels && happening.labels.map( label => label.id )
-				let labelsReferences = []
-				this.findlabelsReferences(labelsIds, labels, labelsReferences)
-				happening.labels = labelsReferences
+				if ( happening.labels && happening.labels.length ) {
+					let labelsIds = happening.labels.map( label => label.id )
+					let labelsReferences = []
+					this.findlabelsReferences(labelsIds, labels, labelsReferences)
+					happening.labels = labelsReferences
+				}
 			},
 			findlabelsReferences(ids, labels, references) {
 				for (let label of labels) {
@@ -197,7 +199,7 @@
 				if ( newName ) {
 					const { id, labels, fields } = this.happening
 					let happening = { name: newName, fields }
-					labels && ( happening.labelsIds = labels.map( label => label.id ) )
+					labels && labels.length && ( happening.labelsIds = labels.map( label => label.id ) )
 					const response = await requester.put(`/happenings/${id}`, happening)
 					switch ( response && response.status ) {
 						case 200:
