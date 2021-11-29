@@ -69,13 +69,12 @@ class Record {
 				let changes = []
 				records.forEach( record => {
 					updates.forEach( ({ old, latest }) => {
-						let { fields } = record
-						let found = fields.find( ({ _id }) => latest._id===_id )
+						let found = record.fields.find( ({ _id }) => latest._id===_id )
 						if ( found ) {
 							found.value = dataTypes.changeType(found.value, old.type, latest.type)
 						}
 					})
-					record.fields = fields.filter( ({ value }) => value!==null && value!==undefined )
+					record.fields = record.fields.filter( ({ value }) => value!==null && value!==undefined )
 					if ( record.fields.length ) {
 						changes.push(record.save())
 					} else {
