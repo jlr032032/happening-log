@@ -61,26 +61,30 @@ class Record {
 	}
 
 	async updateFields(userId, happeningId, updates) {
-		let records = await RecordOdm.find({ userId, happeningId })
-		let changes = []
-		records.forEach( record => {
-			const oldFields = record.fields
-			let updatedFields = []
-			updates.forEach( ({ old, latest }) => {
-				let found = oldFields.find( ({ _id }) => latest._id===_id )
-				if ( found ) {
-					found.value = dataTypes.changeType(found.value, old.type, latest.type)
-					found.value && updatedFields.push(found)
-				}
-			})
-			if ( updatedFields.length ) {
-				record.fields = updatedFields
-				changes.push(record.save())
-			} else {
-				changes.push(RecordOdm.findOneAndDelete({ _id: record._id }))
+		if ( updates && updates.length ) {
+			const sample = updates[0]
+			const isTypeUpdate = sample.old.type!==sample.latest.type
+			if ( isTypeUpdate ) {
+				let records = await RecordOdm.find({ userId, happeningId })
+				let changes = []
+				records.forEach( record => {
+					updates.forEach( ({ old, latest }) => {
+						let { fields } = record
+						let found = fields.find( ({ _id }) => latest._id===_id )
+						if ( found ) {
+							found.value = dataTypes.changeType(found.value, old.type, latest.type)
+						}
+					})
+					record.fields = fields.filter( ({ value }) => value!==null && value!==undefined )
+					if ( record.fields.length ) {
+						changes.push(record.save())
+					} else {
+						changes.push(RecordOdm.findOneAndDelete({ _id: record._id }))
+					}
+				})
+				await Promise.all(changes)
 			}
-		})
-		await Promise.all(changes)
+		}
 	}
 
 }
