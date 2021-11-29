@@ -13,6 +13,7 @@ router.post('/auth/refreshing', UserCtlr.refreshToken)
 router.delete('/auth/token', Auth, UserCtlr.deleteToken)
 
 router.post('/user', UserCtlr.signUp)
+router.get('/user/confirmation/:token', UserCtlr.confirmSignup)
 
 router.post('/labels', Auth, LabelCtlr.create)
 router.get('/labels', Auth, LabelCtlr.readAll)

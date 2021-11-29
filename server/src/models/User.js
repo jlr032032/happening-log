@@ -31,6 +31,12 @@ class User {
 		return await UserOdm.findOne({ email })
 	}
 
+	async update(userData) {
+		const { email } = userData
+		const queryOptions = { overwrite: true, new: true }
+		return await UserOdm.findOneAndUpdate({ email }, userData, queryOptions)
+	}
+
 }
 
 const internal = {

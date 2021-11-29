@@ -114,6 +114,48 @@ const UserController = {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
 		}
+	},
+
+	async confirmSignup(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				let title, message
+				const tokenData = await auth.tokenData(request.params.token)
+				if ( tokenData ) {
+					if ( tokenData.expiresAt > Date.now() ) {
+						let user = await User.findByEmail(tokenData.email)
+						const { email } = user
+						if ( user.notConfirmed ) {
+							user = user.toObject()
+							delete user.notConfirmed
+							await User.update(user)
+							title = 'Confirmado'
+							message = `El registro de usuario asociado al email ${email} fue confirmado exitosamente.`
+						} else {
+							title = 'Usuario activo'
+							message = `El registro del usuario asociado al email ${email} ya se confirmó previamente.`
+						}
+					} else {
+						title = 'Enlace caducado'
+						message = 'Este enlace de confirmación de registro ya caducó. Por favor, generar uno nuevo volviendo a hacer el registro.'
+					}
+				} else {
+					title = 'Enlace inválido'
+					message = 'Por favor, hacer el registro mediante un enlace válido generado a través del formulario de registro de la vista de inicio.'
+				}
+				response.render('SignupConfirmation', { title, message })
+			}
+		} catch ( error ) {
+			console.log(error)
+			title = 'Aviso'
+			message = 'La operación no puede ser procesada en este momento.'
+			response.render('SignupConfirmation', { title, message })
+		}
 	}
 
 }
