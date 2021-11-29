@@ -171,10 +171,11 @@
 		methods: {
 			...mapMutations(['setRecords']),
 			resolveLabelReferences() {
-				let labelsIds = this.happening.labels.map( label => label.id )
+				const { happening, labels } = this
+				let labelsIds = happening.labels && happening.labels.map( label => label.id )
 				let labelsReferences = []
-				this.findlabelsReferences(labelsIds, this.labels, labelsReferences)
-				this.happening.labels = labelsReferences
+				this.findlabelsReferences(labelsIds, labels, labelsReferences)
+				happening.labels = labelsReferences
 			},
 			findlabelsReferences(ids, labels, references) {
 				for (let label of labels) {
