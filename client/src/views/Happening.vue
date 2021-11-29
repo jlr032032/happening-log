@@ -231,6 +231,7 @@
 				const response = await requester.put(`/happenings/${id}`, happening)
 				switch ( response && response.status ) {
 					case 200:
+						await this.fetchLastRecords(this.$route.params.id)
 						this.$store.commit('setHappening', response.data)
 						break
 					default:
