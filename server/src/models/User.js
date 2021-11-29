@@ -7,15 +7,28 @@ class User {
 	constructor() {
 		let userSchema = {
 			email: { type: String, required: true, unique: true },
-			password: { type: String, required: true }
+			password: { type: String, required: true },
+			blocked: Boolean,
+			notConfirmed: Boolean,
+			signinAttempts: Number
 		}
 		userSchema = new mongoose.Schema(userSchema, { versionKey: false })
 		UserOdm = mongoose.model('User', userSchema)
 	}
 
+	async create(userData) {
+		const { email } = userData
+		const queryOptions = { upsert: true, overwrite: true, new: true }
+		return await UserOdm.findOneAndUpdate({ email }, userData, queryOptions)
+	}
+
 	async findByCredentials(email, password) {
 		let user = await UserOdm.findOne({ email, password })
 		return user || internal.error('INVALID_CREDENTIALS')
+	}
+
+	async findByEmail(email) {
+		return await UserOdm.findOne({ email })
 	}
 
 }

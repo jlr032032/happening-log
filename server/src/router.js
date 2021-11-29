@@ -12,6 +12,8 @@ router.post('/auth/token', UserCtlr.generateToken)
 router.post('/auth/refreshing', UserCtlr.refreshToken)
 router.delete('/auth/token', Auth, UserCtlr.deleteToken)
 
+router.post('/user', UserCtlr.signUp)
+
 router.post('/labels', Auth, LabelCtlr.create)
 router.get('/labels', Auth, LabelCtlr.readAll)
 router.put('/labels/:labelId', Auth, IdChk, LabelCtlr.update)

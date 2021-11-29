@@ -48,59 +48,7 @@
 					</v-btn>
 				</form>
 				<div class="d-flex justify-space-between mt-10">
-					<v-dialog max-width="600px">
-						<template v-slot:activator="{ attrs, on }">
-							<div
-								v-bind="attrs"
-								v-on="on"
-							>
-								<v-icon> mdi-account-plus </v-icon>
-								Registrarme
-							</div>
-						</template>
-						<template v-slot:default>
-							<v-card>
-								<v-card-title class="custom--title-2 primary--text"> Registro </v-card-title>
-								<v-card-text>
-									<div class="d-flex align-center">
-										<label class="custom--signup-label flex-shrink-0"> Email: </label>
-										<v-text-field
-											dense
-											type="email"
-										/>
-									</div>
-									<div class="d-flex align-center">
-										<label class="custom--signup-label flex-shrink-0"> Contraseña: </label>
-										<v-text-field
-											dense
-											type="password"
-										/>
-									</div>
-									<div class="d-flex align-center">
-										<label class="custom--signup-label flex-shrink-0"> Confirmar contraseña: </label>
-										<v-text-field
-											dense
-											type="password"
-										/>
-									</div>
-								</v-card-text>
-								<v-card-actions>
-									<v-spacer></v-spacer>
-									<v-btn
-										color="primary"
-										text
-									>
-										Cancelar
-									</v-btn>
-									<v-btn
-										color="primary"
-									>
-										Registrarme
-									</v-btn>
-								</v-card-actions>
-							</v-card>
-						</template>
-					</v-dialog>
+					<signup-handler />
 					<v-dialog max-width="600px">
 						<template v-slot:activator="{ attrs, on }">
 							<div
@@ -152,6 +100,9 @@
 	import requester from '@/helpers/requester'
 	export default {
 		name: 'Signin',
+		components: {
+			SignupHandler: () => import('@/components/SignupHandler')
+		},
 		data: () => ({
 			credentials: {
 				email: '',
@@ -238,9 +189,6 @@
 	}
 	.custom--signin-field-label {
 		width: 100px;
-	}
-	.custom--signup-label {
-		width: 155px;
 	}
 	.custom--recovery-label {
 		width: 50px;

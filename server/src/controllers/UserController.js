@@ -1,6 +1,7 @@
 const Joi = require('joi')
 const User = require('../models/User')
 const auth = require('../helpers/Auth')
+const mailer = require('../helpers/Mailer')
 const { string } = Joi.types()
 
 const errorStatus = {
@@ -83,6 +84,36 @@ const UserController = {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
 		}
+	},
+
+	async signUp(request, response, next) {
+		try {
+			const requestSchema = Joi.object({
+				email: string.email().required(),
+				password: string.required()
+			})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				response.status(400).json({ message: badBody.details[0].message })
+			} else {
+				const { email, password } = request.body
+				const user = await User.findByEmail(email)
+				if ( user ) {
+					if ( user.notConfirmed ) {
+						await internal.signUserUp({ email, password })
+						response.status(204).end()
+					} else {
+						response.status(409).json({ message: 'Email address already used' })
+					}
+				} else {
+					await internal.signUserUp({ email, password })
+					response.status(204).end()
+				}
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
 	}
 
 }
@@ -93,6 +124,28 @@ const internal = {
 		httpOnly: true,
 		secure: false,
 		sameSite: 'Strict'
+	},
+
+	async signUserUp(options) {
+		const { email, password } = options
+		const newUser = {
+			email,
+			password,
+			blocked: false,
+			notConfirmed: true,
+			signinAttempts: 0
+		}
+		await User.create(newUser)
+		const expiresAt = Date.now() + 1200000 // In 20 minutes
+		const token = await auth.sign({ email, expiresAt })
+		const confirmationUrl = `${process.env.BASE_URL}/user/confirmation/${token}`
+		const mailContent = 'La confirmación del registro se debe realizar a través del '
+			+ `siguiente enlace:<br/><br/><a href="${confirmationUrl}">${confirmationUrl}</a>`
+		mailer.send({
+			subject: 'App de Registro de Sucesos | Confirmación de registro de usuario',
+			to: email,
+			content: mailContent
+		})
 	}
 
 }
