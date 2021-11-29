@@ -1,39 +1,31 @@
 const express = require('express')
-const authorization = require('./middleware/Authorization')
-const uriIdsCheck = require('./middleware/UriIdsCheck')
-const UserController = require('./controllers/UserController')
-const LabelController = require('./controllers/LabelController')
-const HappeningController = require('./controllers/HappeningController')
-const RecordController = require('./controllers/RecordController')
+const Auth = require('./middleware/Authorization')
+const IdChk = require('./middleware/UriIdsCheck')
+const UserCtlr = require('./controllers/UserController')
+const LabelCtlr = require('./controllers/LabelController')
+const HappeningCtlr = require('./controllers/HappeningController')
+const RecordCtlr = require('./controllers/RecordController')
 
-// Public access routes
+let router = express.Router()
 
-const publicRouter = express.Router()
+router.post('/auth/token', UserCtlr.generateToken)
+router.post('/auth/refreshing', UserCtlr.refreshToken)
+router.delete('/auth/token', Auth, UserCtlr.deleteToken)
 
-publicRouter.post('/auth/token', UserController.generateToken)
-publicRouter.post('/auth/refreshing', UserController.refreshToken)
+router.post('/labels', Auth, LabelCtlr.create)
+router.get('/labels', Auth, LabelCtlr.readAll)
+router.put('/labels/:labelId', Auth, IdChk, LabelCtlr.update)
+router.delete('/labels/:labelId', Auth, IdChk, LabelCtlr.delete)
 
-// Private access routes
+router.post('/happenings', Auth, HappeningCtlr.create)
+router.get('/happenings', Auth, HappeningCtlr.readAll)
+router.get('/happenings/:happeningId', Auth, IdChk, HappeningCtlr.readOne)
+router.put('/happenings/:happeningId', Auth, IdChk, HappeningCtlr.update)
+router.delete('/happenings/:happeningId', Auth, IdChk, HappeningCtlr.delete)
 
-const privateRouter = express.Router()
-privateRouter.use(authorization)
+router.post('/happenings/:happeningId/records', Auth, RecordCtlr.create)
+router.get('/happenings/:happeningId/records', Auth, RecordCtlr.readByHappeningId)
+router.put('/happenings/:happeningId/records/:recordId', Auth, IdChk, RecordCtlr.update)
+router.delete('/happenings/records/:recordId', Auth, IdChk, RecordCtlr.delete)
 
-privateRouter.delete('/auth/token', UserController.deleteToken)
-
-privateRouter.post('/labels', LabelController.create)
-privateRouter.get('/labels', LabelController.readAll)
-privateRouter.put('/labels/:labelId', uriIdsCheck, LabelController.update)
-privateRouter.delete('/labels/:labelId', uriIdsCheck, LabelController.delete)
-
-privateRouter.post('/happenings', HappeningController.create)
-privateRouter.get('/happenings', HappeningController.readAll)
-privateRouter.get('/happenings/:happeningId', uriIdsCheck, HappeningController.readOne)
-privateRouter.put('/happenings/:happeningId', uriIdsCheck, HappeningController.update)
-privateRouter.delete('/happenings/:happeningId', uriIdsCheck, HappeningController.delete)
-
-privateRouter.post('/happenings/:happeningId/records', RecordController.create)
-privateRouter.get('/happenings/:happeningId/records', RecordController.readByHappeningId)
-privateRouter.put('/happenings/:happeningId/records/:recordId', uriIdsCheck, RecordController.update)
-privateRouter.delete('/happenings/records/:recordId', uriIdsCheck, RecordController.delete)
-
-module.exports = { publicRouter, privateRouter }
+module.exports = router
