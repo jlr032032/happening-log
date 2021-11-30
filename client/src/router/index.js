@@ -3,7 +3,11 @@ import VueRouter from 'vue-router'
 import store from '../store/index'
 
 const routes = [
-	{ path: '/', component: () => import('@/views/Signin') },
+	{
+		path: '/',
+		component: () => import('@/views/Signin'),
+		beforeEnter: (to, from, next) => store.getters.signedIn ? next('/sucesos') : next()
+	},
 	{
 		path: '/perfil',
 		component: () => import('@/views/Profile'),
