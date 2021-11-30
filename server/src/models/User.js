@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const clientFieldsPlugin = require('./plugins/ClientFields')
 
 let UserOdm
 
@@ -13,6 +14,7 @@ class User {
 			signinAttempts: Number
 		}
 		userSchema = new mongoose.Schema(userSchema, { versionKey: false })
+		userSchema.plugin(clientFieldsPlugin)
 		UserOdm = mongoose.model('User', userSchema)
 	}
 
@@ -35,6 +37,10 @@ class User {
 		const { email } = userData
 		const queryOptions = { overwrite: true, new: true }
 		return await UserOdm.findOneAndUpdate({ email }, userData, queryOptions)
+	}
+
+	async readOne(userId) {
+		return await UserOdm.findOne({ _id: userId })
 	}
 
 }

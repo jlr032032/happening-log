@@ -156,6 +156,23 @@ const UserController = {
 			message = 'La operación no puede ser procesada en este momento.'
 			response.render('SignupConfirmation', { title, message })
 		}
+	},
+	
+	async getUser(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				const user = await User.readOne(request.userId)
+				response.status(200).json(user.clientFields({ keep: ['email'] }))
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
 	}
 
 }

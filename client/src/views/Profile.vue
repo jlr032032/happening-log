@@ -9,13 +9,16 @@
 					<v-text-field
 						dense
 						type="email"
+						v-model="user.newEmail"
 					/>
 				</div>
 				<div class="d-flex justify-end">
 					<v-btn
 						color="primary"
 						class="custom--button"
-					> Actualizar email </v-btn>
+					>
+						Actualizar email
+					</v-btn>
 				</div>
 			</form>
 
@@ -82,6 +85,31 @@
 	</div>
 </template>
 
+<script>
+	import requester from '@/helpers/requester'
+	export default {
+		name: 'Profile',
+		data: () => ({
+			user: {
+				email: null,
+				newEmail: null,
+				password: null,
+				newPassword: null,
+				passwordConfirmation: null
+			}
+		}),
+		async created() {
+			const response = await requester.get('/user')
+			if ( response && response.status===200 ) {
+				const { user } = this
+				user.email = user.newEmail = response.data.email
+			} else {
+				this.$showErrorDialog({ message: 'No se pudo obtener el email en este momento.' })
+			}
+		}
+	}
+</script>
+
 <style scoped>
 	.custom--main-container {
 		max-width: 500px;
@@ -94,5 +122,12 @@
 	}
 	.custom--password-label {
 		width: 150px;
+	}
+	.custom--message {
+		position: fixed;
+		bottom: 20px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 297px;
 	}
 </style>
