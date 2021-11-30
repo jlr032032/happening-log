@@ -9,7 +9,7 @@ const auth = {
 		return await this.sign({
 			ip,
 			userId,
-			exp: Date.now() + process.env.TOKEN_SECONDS * 1000,
+			exp: Date.now() + process.env.TOKEN_MINUTES * 60000,
 			access: true
 		})
 	},
