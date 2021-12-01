@@ -31,8 +31,8 @@ const UserController = {
 				const refreshToken = await auth.refreshToken(ip, user._id)
 				response
 					.status(204)
-					.cookie('accessToken', accessToken, internal.authCookiesOptions)
-					.cookie('refreshToken', refreshToken, internal.authCookiesOptions)
+					.cookie('accessToken', accessToken, internal.accessCookieOptions)
+					.cookie('refreshToken', refreshToken, internal.refreshCookieOptions)
 					.end()
 			}
 		} catch ( error ) {
@@ -58,8 +58,8 @@ const UserController = {
 					const newAccessToken = await auth.accessToken(access.ip, access.userId)
 					response
 						.status(204)
-						.cookie('accessToken', newAccessToken, internal.authCookiesOptions)
-						.cookie('refreshToken', refreshToken, internal.authCookiesOptions)
+						.cookie('accessToken', newAccessToken, internal.accessCookieOptions)
+						.cookie('refreshToken', refreshToken, internal.refreshCookieOptions)
 						.end()
 				} else {
 					response.status(401).end()
@@ -80,8 +80,8 @@ const UserController = {
 				response.status(400).json({ message })
 			} else {
 				response
-					.clearCookie('accessToken', internal.authCookiesOptions)
-					.clearCookie('refreshToken', internal.authCookiesOptions)
+					.clearCookie('accessToken', internal.accessCookieOptions)
+					.clearCookie('refreshToken', internal.refreshCookieOptions)
 					.status(204)
 					.end()
 			}
@@ -238,8 +238,8 @@ const UserController = {
 					Record.deleteByUserId(userId)
 				])
 				response
-					.clearCookie('accessToken', internal.authCookiesOptions)
-					.clearCookie('refreshToken', internal.authCookiesOptions)
+					.clearCookie('accessToken', internal.accessCookieOptions)
+					.clearCookie('refreshToken', internal.refreshCookieOptions)
 					.status(200)
 					.json(user.clientFields({ keep: ['email'] }))
 			}
@@ -253,10 +253,17 @@ const UserController = {
 
 const internal = {
 
-	authCookiesOptions: {
+	accessCookieOptions: {
 		httpOnly: true,
 		secure: false,
 		sameSite: 'Strict'
+	},
+
+	refreshCookieOptions: {
+		httpOnly: true,
+		secure: false,
+		sameSite: 'Strict',
+		path: '/auth/refreshing'
 	},
 
 	async signUserUp(options) {
