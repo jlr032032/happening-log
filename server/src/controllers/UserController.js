@@ -174,6 +174,28 @@ const UserController = {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
 		}
+	},
+
+	async updateEmail(request, response, next) {
+		try {
+			const requestSchema = Joi.object({
+				email: string.email().required()
+			})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				const { userId, body: { email } } = request
+				const userData = { email }
+				const updateOptions = { overwrite: false }
+				const updated = await User.update(userId, userData, updateOptions)
+				response.status(200).json(updated.clientFields({ keep: ['email'] }))
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
 	}
 
 }

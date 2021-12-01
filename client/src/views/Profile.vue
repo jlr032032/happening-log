@@ -16,6 +16,7 @@
 					<v-btn
 						color="primary"
 						class="custom--button"
+						@click="updateEmail"
 					>
 						Actualizar email
 					</v-btn>
@@ -80,6 +81,15 @@
 				</template>
 			</v-dialog>
 			
+			<v-alert
+				:type="message.type"
+				dismissible
+				class="custom--message"
+				transition="scale-transition"
+				v-model="message.show"
+			>
+				{{ message.text }}
+			</v-alert>
 
 		</div>
 	</div>
@@ -96,6 +106,11 @@
 				password: null,
 				newPassword: null,
 				passwordConfirmation: null
+			},
+			message: {
+				show: null,
+				text: null,
+				type: null
 			}
 		}),
 		async created() {
@@ -105,6 +120,30 @@
 				user.email = user.newEmail = response.data.email
 			} else {
 				this.$showErrorDialog({ message: 'No se pudo obtener el email en este momento.' })
+			}
+		},
+		methods: {
+			async updateEmail() {
+				let { user, user: { newEmail } } = this
+				this.message.show = false
+				newEmail = newEmail.trim()
+				if ( !/^.+@.+\..+$/.test(newEmail) ) {
+					this.message.text = 'La dirección de email no es válida'
+					this.message.type = 'warning'
+					this.message.show = true
+					return
+				}
+				const response = await requester.put('/user/email', { email: newEmail })
+				if ( response && response.status===200 ) {
+					const message = this.message
+					message.text = 'Email actualizado exitosamente'
+					message.type = 'success'
+					message.show = true
+					setTimeout(() => message.show = false, 4000)
+				} else {
+					user.newEmail = user.email
+					this.$showErrorDialog()
+				}
 			}
 		}
 	}
