@@ -44,6 +44,16 @@ class User {
 		return await UserOdm.findOne({ _id: userId })
 	}
 
+	async updatePassword(userId, password, newPassword) {
+		let user = await UserOdm.findOne({ _id: userId, password })
+		if ( user ) {
+			user.password = newPassword
+			return await user.save()
+		} else {
+			throw { code: 'WRONG_PASSWORD', message: 'Wrong password' }
+		}
+	}
+
 }
 
 const internal = {

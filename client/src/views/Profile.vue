@@ -29,6 +29,7 @@
 					<v-text-field
 						dense
 						type="password"
+						v-model="user.password"
 					/>
 				</div>
 				<div class="d-flex align-center">
@@ -36,6 +37,7 @@
 					<v-text-field
 						dense
 						type="password"
+						v-model="user.newPassword"
 					/>
 				</div>
 				<div class="d-flex align-center">
@@ -43,12 +45,14 @@
 					<v-text-field
 						dense
 						type="password"
+						v-model="user.passwordConfirmation"
 					/>
 				</div>
 				<div class="d-flex justify-end mt-3">
 					<v-btn
 						color="primary"
 						class="custom--button"
+						@click="updatePassword"
 					>
 						Actualizar contraseña
 					</v-btn>
@@ -143,6 +147,40 @@
 				} else {
 					user.newEmail = user.email
 					this.$showErrorDialog()
+				}
+			},
+			async updatePassword() {
+				let { message } = this
+				const { password, newPassword, passwordConfirmation: confirmation } = this.user
+				message.show = false
+				if ( password && newPassword && confirmation ) {
+					if ( newPassword===confirmation ) {
+						const response = await requester.put('/user/password', { password, newPassword })
+						switch ( response && response.status ) {
+							case 200:
+								message.text = 'La contraseña fue actualizada exitosamente'
+								message.type = 'success'
+								message.show = true
+								setTimeout(() => message.show = false, 4000)
+								break
+							case 401:
+								message.text = 'Contraseña actual incorrecta'
+								message.type = 'error'
+								message.show = true
+								break
+							default:
+								this.$showErrorDialog()
+						}
+					} else {
+						message.text = 'La contraseña nueva debe coincidir con su confirmación'
+						message.type = 'warning'
+						message.show = true
+					}
+				} else {
+					let { message } = this
+					message.text = 'Se debe proveer la contraseña actual, la nueva contraseña y su confirmación'
+					message.type = 'warning'
+					message.show = true
 				}
 			}
 		}

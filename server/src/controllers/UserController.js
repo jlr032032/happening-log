@@ -5,7 +5,8 @@ const mailer = require('../helpers/Mailer')
 const { string } = Joi.types()
 
 const errorStatus = {
-	INVALID_CREDENTIALS: 401
+	INVALID_CREDENTIALS: 401,
+	WRONG_PASSWORD: 401
 }
 
 const UserController = {
@@ -190,6 +191,27 @@ const UserController = {
 				const userData = { email }
 				const updateOptions = { overwrite: false }
 				const updated = await User.update(userId, userData, updateOptions)
+				response.status(200).json(updated.clientFields({ keep: ['email'] }))
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
+	async updatePassword(request, response, next) {
+		try {
+			const requestSchema = Joi.object({
+				password: string,
+				newPassword: string
+			})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				const { userId, body: { password, newPassword } } = request
+				const updated = await User.updatePassword(userId, password, newPassword)
 				response.status(200).json(updated.clientFields({ keep: ['email'] }))
 			}
 		} catch (error) {
