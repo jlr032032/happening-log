@@ -6,6 +6,7 @@ const { string } = Joi.types()
 
 const errorStatus = {
 	INVALID_CREDENTIALS: 401,
+	USED_EMAIL: 409,
 	WRONG_PASSWORD: 401
 }
 
@@ -188,9 +189,7 @@ const UserController = {
 				response.status(400).json({ message })
 			} else {
 				const { userId, body: { email } } = request
-				const userData = { email }
-				const updateOptions = { overwrite: false }
-				const updated = await User.update(userId, userData, updateOptions)
+				const updated = await User.updateEmail(userId, email)
 				response.status(200).json(updated.clientFields({ keep: ['email'] }))
 			}
 		} catch (error) {

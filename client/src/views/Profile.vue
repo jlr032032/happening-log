@@ -138,15 +138,22 @@
 					return
 				}
 				const response = await requester.put('/user/email', { email: newEmail })
-				if ( response && response.status===200 ) {
-					const message = this.message
-					message.text = 'Email actualizado exitosamente'
-					message.type = 'success'
-					message.show = true
-					setTimeout(() => message.show = false, 4000)
-				} else {
-					user.newEmail = user.email
-					this.$showErrorDialog()
+				let message = this.message
+				switch ( response && response.status ) {
+					case 200:
+						message.text = 'Email actualizado exitosamente'
+						message.type = 'success'
+						message.show = true
+						setTimeout(() => message.show = false, 4000)
+						break
+					case 409:
+						message.text = `La dirección ${newEmail} no está disponible`
+						message.type = 'warning'
+						message.show = true
+						break
+					default:
+						user.newEmail = user.email
+						this.$showErrorDialog()
 				}
 			},
 			async updatePassword() {

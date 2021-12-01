@@ -44,6 +44,19 @@ class User {
 		return await UserOdm.findOne({ _id: userId })
 	}
 
+	async updateEmail(userId, newEmail) {
+		let [ user, anotherUser ] = await Promise.all([
+			UserOdm.findOne({ _id: userId }),
+			UserOdm.findOne({ email: newEmail })
+		])
+		if ( anotherUser && userId!==anotherUser._id.toString() ) {
+			throw { code: 'USED_EMAIL', message: 'Already used email' }
+		} else {
+			user.email = newEmail
+			return await user.save()
+		}
+	}
+
 	async updatePassword(userId, password, newPassword) {
 		let user = await UserOdm.findOne({ _id: userId, password })
 		if ( user ) {
