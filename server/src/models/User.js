@@ -33,10 +33,11 @@ class User {
 		return await UserOdm.findOne({ email })
 	}
 
-	async update(userData) {
-		const { email } = userData
-		const queryOptions = { overwrite: true, new: true }
-		return await UserOdm.findOneAndUpdate({ email }, userData, queryOptions)
+	async update(userId, userData, options) {
+		const { overwrite } = options || {}
+		const queryFilter = { _id: userId }
+		const queryOptions = { overwrite, new: true }
+		return await UserOdm.findOneAndUpdate(queryFilter, userData, queryOptions)
 	}
 
 	async readOne(userId) {

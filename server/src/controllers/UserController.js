@@ -133,7 +133,8 @@ const UserController = {
 						if ( user.notConfirmed ) {
 							user = user.toObject()
 							delete user.notConfirmed
-							await User.update(user)
+							const updateOptions = { overwrite: true }
+							await User.update(user._id, user, updateOptions)
 							title = 'Confirmado'
 							message = `El registro de usuario asociado al email ${email} fue confirmado exitosamente.`
 						} else {
