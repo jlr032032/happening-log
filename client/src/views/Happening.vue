@@ -233,6 +233,7 @@
 					case 200:
 						await this.fetchLastRecords(this.$route.params.id)
 						this.$store.commit('setHappening', response.data)
+						this.resolveLabelReferences()
 						break
 					default:
 						this.$showErrorDialog()
