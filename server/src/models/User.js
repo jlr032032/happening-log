@@ -67,6 +67,10 @@ class User {
 		}
 	}
 
+	async delete(userId) {
+		return await UserOdm.findOneAndDelete({ _id: userId })
+	}
+
 }
 
 const internal = {

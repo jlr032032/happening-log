@@ -17,6 +17,7 @@ router.get('/user/confirmation/:token', UserCtlr.confirmSignup)
 router.get('/user', Auth, UserCtlr.getUser)
 router.put('/user/email', Auth, UserCtlr.updateEmail)
 router.put('/user/password', Auth, UserCtlr.updatePassword)
+router.delete('/user', Auth, UserCtlr.delete)
 
 router.post('/labels', Auth, LabelCtlr.create)
 router.get('/labels', Auth, LabelCtlr.readAll)

@@ -1,5 +1,8 @@
 const Joi = require('joi')
 const User = require('../models/User')
+const Label = require('../models/Label')
+const Happening = require('../models/Happening')
+const Record = require('../models/Record')
 const auth = require('../helpers/Auth')
 const mailer = require('../helpers/Mailer')
 const { string } = Joi.types()
@@ -212,6 +215,33 @@ const UserController = {
 				const { userId, body: { password, newPassword } } = request
 				const updated = await User.updatePassword(userId, password, newPassword)
 				response.status(200).json(updated.clientFields({ keep: ['email'] }))
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
+	async delete(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				const { userId } = request
+				const [ user ] = await Promise.all([
+					User.delete(userId),
+					Label.deleteByUserId(userId),
+					Happening.deleteByUserId(userId),
+					Record.deleteByUserId(userId)
+				])
+				response
+					.clearCookie('accessToken', internal.authCookiesOptions)
+					.clearCookie('refreshToken', internal.authCookiesOptions)
+					.status(200)
+					.json(user.clientFields({ keep: ['email'] }))
 			}
 		} catch (error) {
 			const code = errorStatus[error.code]

@@ -50,6 +50,10 @@ class Happening {
 		return deleted || internal.error({ code: 'INVALID_HAPPENING_ID', happeningId })
 	}
 
+	async deleteByUserId(userId) {
+		await HappeningOdm.deleteMany({ userId })
+	}
+
 	async deleteLabels(userId, deletedIds) {
 		const queryFilter = { userId, 'labels._id': { $in: deletedIds } }
 		const happenings = await HappeningOdm.find(queryFilter)

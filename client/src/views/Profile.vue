@@ -59,7 +59,7 @@
 				</div>
 			</form>
 
-			<v-dialog>
+			<v-dialog v-model="showDeleteDialog">
 				<template v-slot:activator="{ attrs, on }">
 					<v-btn
 						width="100%"
@@ -75,11 +75,21 @@
 				<template v-slot:default>
 					<v-card>
 						<v-card-title> Eliminar cuenta </v-card-title>
-						<v-card-text> La cuenta y toda la información registrada será eliminada ¿Deseas eliminarla definitivamente? </v-card-text>
+						<v-card-text> La cuenta y toda la información registrada será eliminada de forma irreversible ¿Deseas eliminarla definitivamente? </v-card-text>
 						<v-card-actions>
 							<v-spacer />
-							<v-btn text> Cancelar </v-btn>
-							<v-btn black dark> Eliminar </v-btn>
+							<v-btn
+								text
+								@click="closeDeleteUserDialog()"
+							>
+								Cancelar
+							</v-btn>
+							<v-btn
+								black
+								dark
+								@click="closeDeleteUserDialog(true)">
+									Eliminar
+								</v-btn>
 						</v-card-actions>
 					</v-card>
 				</template>
@@ -100,10 +110,12 @@
 </template>
 
 <script>
+	import { mapMutations } from 'vuex'
 	import requester from '@/helpers/requester'
 	export default {
 		name: 'Profile',
 		data: () => ({
+			showDeleteDialog: null,
 			user: {
 				email: null,
 				newEmail: null,
@@ -127,6 +139,7 @@
 			}
 		},
 		methods: {
+			...mapMutations(['setSignedIn']),
 			async updateEmail() {
 				let { user, user: { newEmail } } = this
 				this.message.show = false
@@ -188,6 +201,19 @@
 					message.text = 'Se debe proveer la contraseña actual, la nueva contraseña y su confirmación'
 					message.type = 'warning'
 					message.show = true
+				}
+			},
+			async closeDeleteUserDialog(erase) {
+				if ( erase ) {
+					const response = await requester.delete('/user')
+					if ( response && response.status===200 ) {
+						this.setSignedIn(false)
+						this.$router.push('/')
+					} else {
+						this.$showErrorDialog()
+					}
+				} else {
+					this.showDeleteDialog = false
 				}
 			}
 		}
