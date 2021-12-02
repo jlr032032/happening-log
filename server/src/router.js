@@ -13,6 +13,7 @@ router.post('/auth/refreshing', UserCtlr.refreshToken)
 router.delete('/auth/token', Auth, UserCtlr.deleteToken)
 
 router.post('/user', UserCtlr.signUp)
+router.post('/user/password-resetting', UserCtlr.resetPassword)
 router.get('/user/confirmation/:token', UserCtlr.confirmSignup)
 router.get('/user', Auth, UserCtlr.getUser)
 router.put('/user/email', Auth, UserCtlr.updateEmail)

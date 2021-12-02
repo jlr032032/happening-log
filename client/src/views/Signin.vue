@@ -49,46 +49,7 @@
 				</form>
 				<div class="d-flex justify-space-between mt-10">
 					<signup-handler />
-					<v-dialog max-width="600px">
-						<template v-slot:activator="{ attrs, on }">
-							<div
-								v-bind="attrs"
-								v-on="on"
-							>
-								<v-icon> mdi-lock-reset </v-icon>
-								Recuperar acceso
-							</div>
-						</template>
-						<template v-slot:default>
-							<v-card>
-								<v-card-title class="custom--title-2 primary--text"> Recuperar acceso </v-card-title>
-								<v-card-text>
-									<p class="mt-3"> Se enviará un email de recuperación de acceso. </p>
-									<div class="d-flex align-center">
-										<label class="custom--recovery-label flex-shrink-0"> Email: </label>
-										<v-text-field
-											dense
-											type="email"
-										/>
-									</div>
-								</v-card-text>
-								<v-card-actions>
-									<v-spacer />
-									<v-btn
-										color="primary"
-										text
-									>
-										Cancelar
-									</v-btn>
-									<v-btn
-										color="primary"
-									>
-										Enviar
-									</v-btn>
-								</v-card-actions>
-							</v-card>
-						</template>
-					</v-dialog>
+					<password-resetting-handler />
 				</div>
 			</div>
 		</div>
@@ -101,7 +62,8 @@
 	export default {
 		name: 'Signin',
 		components: {
-			SignupHandler: () => import('@/components/SignupHandler')
+			SignupHandler: () => import('@/components/SignupHandler'),
+			PasswordResettingHandler: () => import('@/components/PasswordResettingHandler')
 		},
 		data: () => ({
 			credentials: {
@@ -185,12 +147,9 @@
 		left: 2em;
 	}
 	.custom--signin-section {
-		width: 290px;
+		width: 305px;
 	}
 	.custom--signin-field-label {
 		width: 100px;
-	}
-	.custom--recovery-label {
-		width: 50px;
 	}
 </style>

@@ -10,7 +10,8 @@ const { string } = Joi.types()
 const errorStatus = {
 	INVALID_CREDENTIALS: 401,
 	USED_EMAIL: 409,
-	WRONG_PASSWORD: 401
+	WRONG_PASSWORD: 401,
+	UNREGISTERED_EMAIL: 422
 }
 
 const UserController = {
@@ -242,6 +243,25 @@ const UserController = {
 					.clearCookie('refreshToken', internal.refreshCookieOptions)
 					.status(200)
 					.json(user.clientFields({ keep: ['email'] }))
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
+	async resetPassword(request, response, next) {
+		try {
+			const requestSchema = Joi.object({
+				email: string.email().required()
+			})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				const user = await User.resetPassword(request.body.email)
+				response.status(200).json(user.clientFields({ keep: ['email'] }))
 			}
 		} catch (error) {
 			const code = errorStatus[error.code]

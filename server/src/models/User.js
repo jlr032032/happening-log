@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const clientFieldsPlugin = require('./plugins/ClientFields')
+const mailer = require('../helpers/Mailer')
 
 let UserOdm
 
@@ -71,6 +72,26 @@ class User {
 		return await UserOdm.findOneAndDelete({ _id: userId })
 	}
 
+	async resetPassword(email) {
+		let user = await UserOdm.findOne({ email })
+		if ( user ) {
+			const newPassword = internal.randomPassword(8)
+			user.password = newPassword
+			await user.save()
+			const mailContent = 'La nueva contraseña para acceder a su cuenta es:'
+				+ `<br/><br/>${newPassword}<br/><br/>Al iniciar sesión, se recomienda`
+				+ ' ir a la sección de perfil y actualizarla a una más fácil de usar.'
+			mailer.send({
+				subject: 'App de Registro de Sucesos | Reinicio de contraseña',
+				to: email,
+				content: mailContent
+			})
+			return user
+		} else {
+			throw { code: 'UNREGISTERED_EMAIL', message: 'Unregistered email' }
+		}
+	}
+
 }
 
 const internal = {
@@ -83,6 +104,18 @@ const internal = {
 		Error.captureStackTrace(error)
 		Object.defineProperty(error, 'stack', { enumerable: true })
 		throw error
+	},
+
+	randomPassword(length) {
+		const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz'
+			+ '234567892345678923456789234567892345678923456789'
+		let password = ''
+		const factor = chars.length - 1
+		for ( let i=0; i<length; i++ ) {
+			let randomIndex = Math.round(factor*Math.random())
+			password += chars[randomIndex]
+		}
+		return password
 	}
 
 }
