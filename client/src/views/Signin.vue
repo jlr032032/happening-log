@@ -53,6 +53,12 @@
 				</div>
 			</div>
 		</div>
+
+		<unblocking-handler
+			:email="credentials.email"
+			v-model="unblockingHandler"
+		/>
+
 	</div>
 </template>
 
@@ -63,9 +69,11 @@
 		name: 'Signin',
 		components: {
 			SignupHandler: () => import('@/components/SignupHandler'),
-			PasswordResettingHandler: () => import('@/components/PasswordResettingHandler')
+			PasswordResettingHandler: () => import('@/components/PasswordResettingHandler'),
+			UnblockingHandler: () => import('@/components/UnblockingHandler')
 		},
 		data: () => ({
+			unblockingHandler: null,
 			credentials: {
 				email: '',
 				password: ''
@@ -103,11 +111,14 @@
 									this.showMessage('Combinación inválida de email y contraseña')
 									break
 								case 'JUST_BLOCKED_USER':
-									this.$showErrorDialog({ message: 'El usuario fue bloqueado' })
+									this.unblockingHandler = true
 									break
 								default:
 									this.$showErrorDialog()
 							}
+							break
+						case 403:
+							this.unblockingHandler = true
 							break
 						case 409:
 							this.showMessage('El usuario debe ser confirmado mediante el enlace enviado por correo')

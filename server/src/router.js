@@ -14,6 +14,7 @@ router.delete('/auth/token', Auth, UserCtlr.deleteToken)
 
 router.post('/user', UserCtlr.signUp)
 router.post('/user/password-resetting', UserCtlr.resetPassword)
+router.post('/user/unblocking-email', UserCtlr.sendUnblockingEmail)
 router.get('/user/confirmation/:token', UserCtlr.confirmSignup)
 router.get('/user', Auth, UserCtlr.getUser)
 router.put('/user/email', Auth, UserCtlr.updateEmail)

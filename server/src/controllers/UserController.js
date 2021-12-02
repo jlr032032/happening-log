@@ -278,6 +278,42 @@ const UserController = {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
 		}
+	},
+
+	async sendUnblockingEmail(request, response, next) {
+		try {
+			const requestSchema = Joi.object({
+				email: string.email().required()
+			})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				const { email } = request.body
+				const user = await User.findByEmail(email)
+				if ( user ) {
+					const expiresAt = Date.now() + 1200000 // In 20 minutes
+					const payload = { expiresAt, email, action: 'unblock' }
+					const token = await auth.sign(payload)
+					const unblockingUrl = `${process.env.BASE_URL}/usuario/desbloqueo/${token}`
+					console.log(unblockingUrl)
+					const mailContent = 'El desbloqueo de usuario se debe realizar a través del '
+						+ `siguiente enlace:<br/><br/><a href="${unblockingUrl}">${unblockingUrl}</a>`
+					mailer.send({
+						subject: 'App de Registro de Sucesos | Desbloqueo de usuario',
+						to: email,
+						content: mailContent
+					})
+					response.status(200).json({ email })
+				} else {
+					response.status(422).json({ message: `No such user with email ${email}` })
+				}
+			}
+		} catch (error) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
 	}
 
 }
