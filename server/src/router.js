@@ -15,12 +15,12 @@ router.delete('/auth/token', Auth, UserCtlr.deleteToken)
 router.post('/user', UserCtlr.signUp)
 router.post('/user/password-resetting', UserCtlr.resetPassword)
 router.post('/user/unblocking-email', UserCtlr.sendUnblockingEmail)
-router.get('/user/confirmation/:token', UserCtlr.confirmSignup)
 router.get('/user', Auth, UserCtlr.getUser)
 router.put('/user/email', Auth, UserCtlr.updateEmail)
 router.put('/user/password', Auth, UserCtlr.updatePassword)
 router.delete('/user', Auth, UserCtlr.delete)
 
+router.get('/usuario/confirmacion/:token', UserCtlr.confirmSignup)
 router.get('/usuario/desbloqueo/:token', UserCtlr.unblock)
 
 router.post('/labels', Auth, LabelCtlr.create)

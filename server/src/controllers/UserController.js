@@ -381,7 +381,7 @@ const internal = {
 		await User.create(newUser)
 		const expiresAt = Date.now() + 1200000 // In 20 minutes
 		const token = await auth.sign({ email, expiresAt })
-		const confirmationUrl = `${process.env.BASE_URL}/user/confirmation/${token}`
+		const confirmationUrl = `${process.env.BASE_URL}/usuario/confirmacion/${token}`
 		const mailContent = 'La confirmación del registro se debe realizar a través del '
 			+ `siguiente enlace:<br/><br/><a href="${confirmationUrl}">${confirmationUrl}</a>`
 		mailer.send({
