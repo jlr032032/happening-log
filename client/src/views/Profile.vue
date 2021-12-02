@@ -170,7 +170,7 @@
 				}
 			},
 			async updatePassword() {
-				let { message } = this
+				let { message, user } = this
 				const { password, newPassword, passwordConfirmation: confirmation } = this.user
 				message.show = false
 				if ( password && newPassword && confirmation ) {
@@ -182,6 +182,7 @@
 								message.type = 'success'
 								message.show = true
 								setTimeout(() => message.show = false, 4000)
+								user.password = user.newPassword = user.passwordConfirmation = ''
 								break
 							case 401:
 								message.text = 'Contraseña actual incorrecta'
