@@ -297,7 +297,6 @@ const UserController = {
 					const payload = { expiresAt, email, action: 'unblock' }
 					const token = await auth.sign(payload)
 					const unblockingUrl = `${process.env.BASE_URL}/usuario/desbloqueo/${token}`
-					console.log(unblockingUrl)
 					const mailContent = 'El desbloqueo de usuario se debe realizar a través del '
 						+ `siguiente enlace:<br/><br/><a href="${unblockingUrl}">${unblockingUrl}</a>`
 					mailer.send({
@@ -313,6 +312,45 @@ const UserController = {
 		} catch (error) {
 			const code = errorStatus[error.code]
 			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
+	async unblock(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				const { message } = badBody.details[0]
+				response.status(400).json({ message })
+			} else {
+				let title, message
+				const tokenData = await auth.tokenData(request.params.token)
+				if ( tokenData && tokenData.action==='unblock' ) {
+					if ( tokenData.expiresAt > Date.now() ) {
+						const { email } = tokenData
+						await User.unblock(email)
+						title = 'Desbloqueado'
+						message = `El usuario asociado al email ${email} fue desbloqueado `
+							+ 'exitosamente.'
+					} else {
+						title = 'Enlace caducado'
+						message = 'Este enlace de desbloqueo ya caducó. Por favor, generar'
+							+ 'uno nuevo volviendo a intentar hacer un inicio de sesión con '
+							+ 'el usuario bloqueado.'
+					}
+				} else {
+					title = 'Enlace inválido'
+					message = 'Por favor, hacer el desbloqueo mediante un enlace válido '
+					 + 'generado por la aplicación al intentar iniciar sesión con un '
+					 + 'usuario bloqueado.'
+				}
+				response.render('Notification', { title, message })
+			}
+		} catch ( error ) {
+			console.log(error)
+			title = 'Aviso'
+			message = 'La operación no puede ser procesada en este momento.'
+			response.render('Notification', { title, message })
 		}
 	}
 

@@ -122,6 +122,18 @@ class User {
 		}
 	}
 
+	async unblock(email) {
+		let queryFilter = { email }
+		let user = await UserOdm.findOne(queryFilter)
+		if ( user ) {
+			user = user.toObject()
+			delete user.blocked
+			queryFilter = { _id: user._id }
+			const queryOptions = { overwrite: true }
+			await UserOdm.findOneAndUpdate(queryFilter, user, queryOptions)
+		}
+	}
+
 }
 
 const internal = {

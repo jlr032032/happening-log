@@ -21,6 +21,8 @@ router.put('/user/email', Auth, UserCtlr.updateEmail)
 router.put('/user/password', Auth, UserCtlr.updatePassword)
 router.delete('/user', Auth, UserCtlr.delete)
 
+router.get('/usuario/desbloqueo/:token', UserCtlr.unblock)
+
 router.post('/labels', Auth, LabelCtlr.create)
 router.get('/labels', Auth, LabelCtlr.readAll)
 router.put('/labels/:labelId', Auth, IdChk, LabelCtlr.update)
