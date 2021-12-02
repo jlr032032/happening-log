@@ -143,7 +143,7 @@ const UserController = {
 			} else {
 				let title, message
 				const tokenData = await auth.tokenData(request.params.token)
-				if ( tokenData ) {
+				if ( tokenData && tokenData.action==='signup' ) {
 					if ( tokenData.expiresAt > Date.now() ) {
 						let user = await User.findByEmail(tokenData.email)
 						const { email } = user
@@ -380,7 +380,8 @@ const internal = {
 		}
 		await User.create(newUser)
 		const expiresAt = Date.now() + 1200000 // In 20 minutes
-		const token = await auth.sign({ email, expiresAt })
+		const payload = { expiresAt, email, action: 'signup' }
+		const token = await auth.sign(payload)
 		const confirmationUrl = `${process.env.BASE_URL}/usuario/confirmacion/${token}`
 		const mailContent = 'La confirmación del registro se debe realizar a través del '
 			+ `siguiente enlace:<br/><br/><a href="${confirmationUrl}">${confirmationUrl}</a>`
