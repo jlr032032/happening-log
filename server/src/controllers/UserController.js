@@ -166,13 +166,13 @@ const UserController = {
 					title = 'Enlace inválido'
 					message = 'Por favor, hacer el registro mediante un enlace válido generado a través del formulario de registro de la vista de inicio.'
 				}
-				response.render('SignupConfirmation', { title, message })
+				response.render('Notification', { title, message })
 			}
 		} catch ( error ) {
 			console.log(error)
 			title = 'Aviso'
 			message = 'La operación no puede ser procesada en este momento.'
-			response.render('SignupConfirmation', { title, message })
+			response.render('Notification', { title, message })
 		}
 	},
 	
