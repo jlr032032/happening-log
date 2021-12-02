@@ -25,11 +25,6 @@ class User {
 		return await UserOdm.findOneAndUpdate({ email }, userData, queryOptions)
 	}
 
-	async findByCredentials(email, password) {
-		let user = await UserOdm.findOne({ email, password })
-		return user || internal.error('INVALID_CREDENTIALS')
-	}
-
 	async findByEmail(email) {
 		return await UserOdm.findOne({ email })
 	}
@@ -89,6 +84,41 @@ class User {
 			return user
 		} else {
 			throw { code: 'UNREGISTERED_EMAIL', message: 'Unregistered email' }
+		}
+	}
+
+	async signIn(email, password) {
+		let user = await UserOdm.findOne({ email })
+		if ( user ) {
+			const queryFilter = { _id: user._id }
+			const queryOptions = { overwrite: true }
+			if ( user.notConfirmed ) {
+				throw { code: 'NOT_CONFIRMED_USER', message: 'Not confirmed user' }
+			}
+			else if ( user.blocked ) {
+				throw { code: 'BLOCKED_USER', message: 'Blocked user' }
+			}
+			else if ( user.password===password ) {
+				user = user.toObject()
+				delete user.signinAttempts
+				return await UserOdm.findOneAndUpdate(queryFilter, user, queryOptions)
+			}
+			else if ( user.signinAttempts===2 ) {
+				user = user.toObject()
+				delete user.signinAttempts
+				user.blocked = true
+				await UserOdm.findOneAndUpdate(queryFilter, user, queryOptions)
+				throw { code: 'JUST_BLOCKED_USER', message: 'User was blocked' }
+			}
+			else {
+				user.signinAttempts = ( user.signinAttempts || 0 ) + 1
+				await user.save()
+				const message = 'Invalid email address and password combination'
+				throw { code: 'INVALID_CREDENTIALS', message }
+			}
+		} else {
+			const message = 'Invalid email address and password combination'
+			throw { code: 'INVALID_CREDENTIALS', message }
 		}
 	}
 

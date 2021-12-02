@@ -8,7 +8,10 @@ const mailer = require('../helpers/Mailer')
 const { string } = Joi.types()
 
 const errorStatus = {
+	NOT_CONFIRMED_USER: 409,
 	INVALID_CREDENTIALS: 401,
+	JUST_BLOCKED_USER: 401,
+	BLOCKED_USER: 403,
 	USED_EMAIL: 409,
 	WRONG_PASSWORD: 401,
 	UNREGISTERED_EMAIL: 422
@@ -27,9 +30,11 @@ const UserController = {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
 				const { ip, body: { email, password } } = request
-				let user = await User.findByCredentials(email, password)
-				const accessToken = await auth.accessToken(ip, user._id)
-				const refreshToken = await auth.refreshToken(ip, user._id)
+				const user = await User.signIn(email, password)
+				const [ accessToken, refreshToken ] = await Promise.all([
+					auth.accessToken(ip, user._id),
+					auth.refreshToken(ip, user._id)
+				])
 				response
 					.status(204)
 					.cookie('accessToken', accessToken, internal.accessCookieOptions)
@@ -38,7 +43,13 @@ const UserController = {
 			}
 		} catch ( error ) {
 			const code = errorStatus[error.code]
-			code ? response.status(code).json({ message: error.message }) : next(error)
+			if ( code ) {
+				let errorData = { message: error.message }
+				code===401 && ( errorData.code = error.code )
+				response.status(code).json(errorData)
+			} else {
+				next(error)
+			}
 		}
 	},
 

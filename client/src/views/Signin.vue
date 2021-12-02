@@ -98,7 +98,19 @@
 							this.$router.push('/sucesos')
 							break
 						case 401:
-							this.showMessage('Combinación inválida de email y contraseña')
+							switch ( response.data.code ) {
+								case 'INVALID_CREDENTIALS':
+									this.showMessage('Combinación inválida de email y contraseña')
+									break
+								case 'JUST_BLOCKED_USER':
+									this.$showErrorDialog({ message: 'El usuario fue bloqueado' })
+									break
+								default:
+									this.$showErrorDialog()
+							}
+							break
+						case 409:
+							this.showMessage('El usuario debe ser confirmado mediante el enlace enviado por correo')
 							break
 						default:
 							this.$showErrorDialog()
