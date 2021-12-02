@@ -376,9 +376,7 @@ const internal = {
 		const newUser = {
 			email,
 			password,
-			blocked: false,
-			notConfirmed: true,
-			signinAttempts: 0
+			notConfirmed: true
 		}
 		await User.create(newUser)
 		const expiresAt = Date.now() + 1200000 // In 20 minutes
