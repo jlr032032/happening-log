@@ -43,7 +43,10 @@
 			/>
 		</div>
 
-		<div class="mt-5">
+		<div
+			class="mt-5"
+			v-if="happeningList.length"
+		>
 			<div
 				v-for="(happening, happening_index) in happeningList"
 				:key="happening_index"
@@ -92,6 +95,15 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div
+			class="mt-5 mx-5 d-flex justify-center"
+			v-if="showCreationHint"
+		>
+			<span class='custom--no-data-text'>
+				El botón inferior puede usarse para añadir un nuevo suceso.
+			</span>
 		</div>
 
 		<happening-creator @createdHappening="addHappening"/>
@@ -166,6 +178,14 @@
 					return this.happenings.filter( happening => normalizeText(happening.name).includes(this.searchedText) )
 				}
 				return this.happenings
+			},
+			showCreationHint() {
+				const { filterByLabels, filterByText, happenings } = this
+				if ( filterByLabels || filterByText ) {
+					return false
+				} else {
+					return !(happenings && happenings.length)
+				}
 			}
 		},
 		methods: {
