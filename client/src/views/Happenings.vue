@@ -98,6 +98,13 @@
 		</div>
 
 		<div
+			class="mt-5 mx-5 d-flex justify-center custom--no-data-text"
+			v-if="showNoMatchingResultsText"
+		>
+			No hay sucesos coincidentes.
+		</div>
+
+		<div
 			class="mt-5 mx-5 d-flex justify-center"
 			v-if="showCreationHint"
 		>
@@ -186,6 +193,13 @@
 				} else {
 					return !(happenings && happenings.length)
 				}
+			},
+			showNoMatchingResultsText() {
+				const { filterByLabels, filterByText, happeningList } = this
+				if ( filterByLabels || filterByText ) {
+					return !(happeningList && happeningList.length)
+				}
+				return false
 			}
 		},
 		methods: {
