@@ -47,6 +47,13 @@
 			</div>
 		</div>
 
+		<div
+			class="mt-5 mx-5 d-flex justify-center custom--no-data-text"
+			v-if="showCreationHint"
+		>
+			El botón inferior puede usarse para añadir una nueva etiqueta.
+		</div>
+
 		<label-tree
 			v-show="!search.normalizedText"
 			:labels="labels"
@@ -378,7 +385,10 @@
 			}
 		},
 		computed: {
-			...mapState(['labels'])
+			...mapState(['labels']),
+			showCreationHint() {
+				return !(this.labels && this.labels.length) && !this.search.normalizedText
+			}
 		},
 		beforeDestroy() {
 			clearTimeout(this.search.delayId)
