@@ -49,8 +49,10 @@ const HappeningController = {
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
-				const deletedHappening = await Happening.delete(request.userId, request.params.happeningId)
+				const { userId, params: { happeningId} } = request
+				const deletedHappening = await Happening.delete(userId, happeningId)
 				if ( deletedHappening ) {
+					await Record.deleteByHappeningId(userId, happeningId)
 					response.status(200).json(deletedHappening.clientFields({ remove: ['userId'] }))
 				} else {
 					response.status(404).json({ message: 'No happening with such id' })
@@ -72,6 +74,23 @@ const HappeningController = {
 				let happenings = await Happening.readAll(request.userId)
 				happenings = happenings.map( happening => happening.clientFields({ remove: ['userId'] }) )
 				response.status(200).json(happenings)
+			}
+		} catch ( error ) {
+			const code = errorStatus[error.code]
+			code ? response.status(code).json({ message: error.message }) : next(error)
+		}
+	},
+
+	async readOne(request, response, next) {
+		try {
+			const requestSchema = Joi.object({})
+			const badBody = requestSchema.validate(request.body).error
+			if ( badBody ) {
+				response.status(400).json({ message: badBody.details[0].message })
+			} else {
+				const { userId, params: { happeningId } } = request
+				let happening = await Happening.find(userId, happeningId)
+				response.status(200).json( happening.clientFields({ remove: ['userId'] }) )
 			}
 		} catch ( error ) {
 			const code = errorStatus[error.code]

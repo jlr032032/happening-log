@@ -66,8 +66,10 @@ const RecordController = {
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
-				const { userId, params: { happeningId } } = request
-				let records = await Record.readByHappeningId(userId, happeningId)
+				let { userId, params: { happeningId }, query: { last } } = request
+				last = Number(last)
+				last = Number.isInteger(last) && last>0 ? last : null
+				let records = await Record.readByHappeningId(userId, happeningId, last)
 				records = records.map( record => record.clientFields({ remove: ['userId'] }))
 				response.status(200).json(records)
 			}
@@ -122,9 +124,12 @@ const internal = {
 				data.value = value
 				return data
 			})
+			// Keeps only the the last given value for every field id
 			.reverse()
-			.filter( ({ name }, index, reversed) => index===reversed.findIndex( data => name===data.name ) )
+			.filter( ({ id }, index, reversed) => index===reversed.findIndex( data => id===data.id ) )
 			.reverse()
+			// Sorts by field id
+			.sort( (a, b) => a.id-b.id )
 	},
 
 	error({code, fieldId, happeningId, subMessage}) {

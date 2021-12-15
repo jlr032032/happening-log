@@ -102,7 +102,7 @@
 						<label-tree
 							v-show="isExpanded(label)"
 							class="custom--nested"
-							:labels="label.nestedLabels"
+							:labels="label.subLabels"
 							:parentLabel="label"
 							:exclude="exclude"
 							v-model="selected_"
@@ -153,7 +153,7 @@
 			labels(newLabels, oldLabels) {
 				if ( oldLabels!==newLabels ) {
 					this.expanded = []
-					this.selected = []
+					this.selected_ = []
 				}
 			},
 			selected(newSelected) {
@@ -164,7 +164,7 @@
 		},
 		methods: {
 			isLeaf(label) {
-				return !label.nestedLabels
+				return !label.subLabels
 			},
 			isSelected(label) {
 				const selected = this.selected_

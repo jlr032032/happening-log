@@ -123,7 +123,8 @@
 		name: 'FieldHandler',
 		props: {
 			largeTitle: { type: Boolean, default: false },
-			fields: { type: Array, default: () => [] }
+			fields: { type: Array, default: () => [] },
+			canBeEmptied: { type: Boolean, default: true }
 		},
 		model: {
 			prop: 'fields',
@@ -140,7 +141,7 @@
 				{ value: 'text', name: 'Texto' },
 				{ value: 'number', name: 'Número' },
 				{ value: 'date', name: 'Fecha' },
-				{ value: 'time', name: 'Hora' }
+				{ value: 'datetime', name: 'Fecha y hora' }
 			]
 		}),
 		created() {
@@ -202,11 +203,16 @@
 				}
 			},
 			deleteField(deletedField, index) {
-				this.fields_ = this.fields_
-					.slice(0, index)
-					.concat( this.fields_.slice(index+1) )
-				this.$emit('change', this.fields_)
-				this.$emit('deleteField', deletedField)
+				const { canBeEmptied, fields } = this
+				if ( !canBeEmptied && fields.length===1 ) {
+					this.$showErrorDialog({ message: 'El suceso no puede quedar sin ninguna caracerística.' })
+				} else {
+					this.fields_ = this.fields_
+						.slice(0, index)
+						.concat( this.fields_.slice(index+1) )
+					this.$emit('change', this.fields_)
+					this.$emit('deleteField', deletedField)
+				}
 			}
 		}
 	}

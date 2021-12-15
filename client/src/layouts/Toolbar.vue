@@ -35,7 +35,7 @@
 						<v-list-item-title>{{ link.text }}</v-list-item-title>
 					</v-list-item-content>
 				</v-list-item>
-				<v-list-item>
+				<v-list-item @click="signOut">
 					<v-list-item-icon>
 						<v-icon> mdi-logout </v-icon>
 					</v-list-item-icon>
@@ -49,6 +49,8 @@
 </template>
 
 <script>
+	import { mapMutations } from 'vuex'
+	import requester from '@/helpers/requester'
 	export default {
 		name: 'Toolbar',
 		data: () => ({
@@ -58,6 +60,24 @@
 				{ icon: 'mdi-label-multiple', text: 'Etiquetas', path: '/etiquetas' },
 				{ icon: 'mdi-account', text: 'Perfil', path: '/perfil' }
 			]
-		})
+		}),
+		methods: {
+			...mapMutations(['setSignedIn']),
+			async signOut() {
+				const response = await requester.delete('/auth/token')
+				if ( response ) {
+					switch ( response.status ) {
+						case 204:
+							this.setSignedIn(false)
+							this.$router.push('/')
+							break
+						default:
+							this.$showErrorDialog()
+					}
+				} else {
+					this.$showErrorDialog()
+				}
+			}
+		}
 	}
 </script>

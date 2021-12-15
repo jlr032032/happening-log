@@ -47,6 +47,13 @@
 			</div>
 		</div>
 
+		<div
+			class="mt-5 mx-5 d-flex justify-center custom--no-data-text"
+			v-if="showCreationHint"
+		>
+			El botón inferior puede usarse para añadir una nueva etiqueta.
+		</div>
+
 		<label-tree
 			v-show="!search.normalizedText"
 			:labels="labels"
@@ -64,7 +71,7 @@
 			<v-icon>mdi-label</v-icon>
 		</v-btn>
 
-		<v-dialog v-model="newLabelData.show">
+		<v-dialog v-model="labelHandler.show">
 			<v-card>
 				<v-card-title class="custom--title-2 primary--text">{{ labelDialogText('title') }}</v-card-title>
 				<v-card-text>
@@ -72,7 +79,7 @@
 						<label class="custom--edit-label"> Nombre: </label>
 						<v-text-field
 							dense
-							v-model="newLabelData.name"
+							v-model="labelHandler.data.name"
 						/>
 					</div>
 					<div class="d-flex align-center">
@@ -80,18 +87,18 @@
 						<label-select
 							clearable
 							:labels="labels"
-							v-model="newLabelData.parentLabel"
-							:exclude="newLabelData.activeLabel"
+							v-model="labelHandler.data.parentLabel"
+							:exclude="labelHandler.activeLabel"
 						/>
 					</div>
 					<div class="d-flex align-center">
 						<label class="custom--edit-label"> Color: </label>
-						<v-dialog v-model="newLabelData.colorPickerDialog">
+						<v-dialog v-model="labelHandler.colorPickerDialog">
 							<template v-slot:activator="{ attrs, on }">
 								<v-sheet
 									elevation="1"
 									class="custom--color-picker"
-									:color="newLabelData.color"
+									:color="labelHandler.data.color"
 									v-bind="attrs"
 									v-on="on"
 								/>
@@ -108,7 +115,7 @@
 											hide-canvas
 											hide-inputs
 											hide-sliders
-											v-model="newLabelData.color"
+											v-model="labelHandler.data.color"
 											@update:color="closeColorDialog"
 										/>
 									</v-card-text>
@@ -126,8 +133,8 @@
 						</v-dialog>
 					</div>
 					<v-dialog
-						v-model="newLabelData.deleteDialog"
-						v-if="newLabelData.activeLabel"
+						v-model="labelHandler.deleteDialog"
+						v-if="labelHandler.activeLabel"
 					>
 						<template v-slot:activator="{ attrs, on }">
 							<v-btn
@@ -152,7 +159,7 @@
 									</v-btn>
 									<v-btn
 										class="black white--text"
-										@click="closeDeleteDialog(newLabelData.activeLabel)"
+										@click="closeDeleteDialog(labelHandler.activeLabel)"
 									>
 										Eliminar
 									</v-btn>
@@ -160,6 +167,16 @@
 							</v-card>
 						</template>
 					</v-dialog>
+					<v-alert
+						class="mt-5"
+						dense
+						outlined
+						dismissible
+						type="warning"
+						v-model="labelHandler.message.show"
+					>
+						{{ labelHandler.message.text }}
+					</v-alert>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer />
@@ -170,7 +187,16 @@
 						Cancelar
 					</v-btn>
 					<v-btn
+						v-if="labelHandler.activeLabel"
 						class="primary"
+						@click="updateLabel"
+					>
+						{{ labelDialogText('accept') }}
+					</v-btn>
+					<v-btn
+						v-else
+						class="primary"
+						@click="createLabel"
 					>
 						{{ labelDialogText('accept') }}
 					</v-btn>
@@ -182,9 +208,10 @@
 </template>
 
 <script>
-	import helpers from '@/mixins/helpers'
-	import { mapState, mapActions } from 'vuex'
+	import { mapState, mapMutations, mapActions } from 'vuex'
 	import { normalizeText } from 'normalize-text'
+	import helpers from '@/mixins/helpers'
+	import requester from '@/helpers/requester'
 
 	export default {
 		name: "Labels",
@@ -195,15 +222,20 @@
 		},
 		data: () => ({
 			multiple: true,
-			newLabelData: {
-				name: '',
-				color: '#0D47A1',
-				parentLabel: null,
+			labelHandler: {
 				activeLabel: null,
 				colorPickerDialog: false,
 				deleteDialog: false,
 				update: false,
-				show: false
+				data: {
+					name: '',
+					color: '#0D47A1',
+					parentLabel: null
+				},
+				message: {
+					show: false,
+					text: ''
+				}
 			},
 			search: {
 				text: '',
@@ -229,31 +261,82 @@
 				}
 			}
 		},
-		created() {
-			this.linkParentLabels()
+		async created() {
+			await this.fetchLabels()
 		},
 		methods: {
+			...mapMutations(['setLabels']),
 			...mapActions(['linkParentLabels']),
 			closeColorDialog() {
-				this.newLabelData.colorPickerDialog = false
+				this.labelHandler.colorPickerDialog = false
 			},
 			closeLabelDialog() {
-				this.newLabelData.show = false
+				this.labelHandler.show = false
 			},
-			closeDeleteDialog(labelToBeDeleted) {
+			async closeDeleteDialog(labelToBeDeleted) {
 				if ( labelToBeDeleted ) {
-					console.log('Delete', labelToBeDeleted)
-					this.closeLabelDialog()
+					const { id } = labelToBeDeleted
+					const response = await requester.delete(`/labels/${id}`)
+					switch ( response && response.status ) {
+						case 200:
+							await this.fetchLabels()
+							this.closeLabelDialog()
+							break
+						default:
+							this.$showErrorDialog()
+					}
 				}
-				this.newLabelData.deleteDialog = false
+				this.labelHandler.deleteDialog = false
+			},
+			async createLabel() {
+				let { labelHandler: { message, data: { name, color, parentLabel } } } = this
+				message.show = false
+				name = name.trim()
+				if ( name=='' ) {
+					message.text = 'Al menos se debe proveer el nombre de la etiqueta.'
+					message.show = true
+					return
+				}
+				let newLabel = { name, color }
+				parentLabel && ( newLabel.parentId = parentLabel.id )
+				const createResponse = await requester.post('/labels', newLabel)
+				switch ( createResponse && createResponse.status ) {
+					case 201:
+						await this.fetchLabels()
+						this.closeLabelDialog()
+						break
+					default:
+						this.$showErrorDialog()
+				}
+			},
+			async updateLabel() {
+				let { labelHandler: { message, data: { id, name, color, parentLabel } } } = this
+				message.show = false
+				name = name.trim()
+				if ( name=='' ) {
+					message.text = 'Se debe proveer el nombre de la etiqueta.'
+					message.show = true
+					return
+				}
+				let updatedLabel = { id, name, color }
+				updatedLabel.parentId = parentLabel ? parentLabel.id : null
+				const createResponse = await requester.put(`/labels/${id}`, updatedLabel)
+				switch ( createResponse && createResponse.status ) {
+					case 200:
+						await this.fetchLabels()
+						this.closeLabelDialog()
+						break
+					default:
+						this.$showErrorDialog()
+				}
 			},
 			filter(labels) {
 				for ( let label of labels ) {
 					if ( normalizeText(label.name).includes(this.search.normalizedText) ) {
 						this.search.result.push(label)
 					}
-					if ( label.nestedLabels && label.nestedLabels.length ) {
-						this.filter(label.nestedLabels)
+					if ( label.subLabels && label.subLabels.length ) {
+						this.filter(label.subLabels)
 					}
 				}
 			},
@@ -262,35 +345,50 @@
 					title: { true: 'Modificar etiqueta', false: 'Crear etiqueta' },
 					accept: { true: 'Modificar', false: 'Crear' }
 				}
-				return texts[ intendedFor||'accept' ][ Boolean(this.newLabelData.update) ]
+				return texts[ intendedFor||'accept' ][ Boolean(this.labelHandler.update) ]
 			},
 			showLabelDialog(label) {
 				if ( !label ) {
-					this.newLabelData = {
-						name: '',
-						color: '#0D47A1',
-						parentLabel: null,
+					this.labelHandler = {
 						activeLabel: null,
 						update: false,
 						colorPickerDialog: false,
-						show: true
+						show: true,
+						data: {
+							name: '',
+							color: '#0D47A1',
+							parentLabel: null,
+						},
+						message: {
+							show: false,
+							text: ''
+						}
 					}
 				} else {
-					this.newLabelData = {
-						id: label.id,
-						name: label.name,
-						color: label.color,
-						parentLabel: label.parentLabel,
+					this.labelHandler = {
 						activeLabel: label,
 						update: true,
 						colorPickerDialog: false,
-						show: true
+						show: true,
+						data: {
+							id: label.id,
+							name: label.name,
+							color: label.color,
+							parentLabel: label.parentLabel
+						},
+						message: {
+							show: false,
+							text: ''
+						}
 					}
 				}
 			}
 		},
 		computed: {
-			...mapState(['labels'])
+			...mapState(['labels']),
+			showCreationHint() {
+				return !(this.labels && this.labels.length) && !this.search.normalizedText
+			}
 		},
 		beforeDestroy() {
 			clearTimeout(this.search.delayId)

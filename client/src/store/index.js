@@ -1,45 +1,72 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import createPersistedState from "vuex-persistedstate"
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+	plugins: [ createPersistedState({ paths: ['signedIn'] }) ],
 	state: {
-		labels: [
-			{ id: '1', name: 'Etiqueta 1 con un nombre extenso', color: '#1b5e20', nestedLabels: [
-				{ id: '1.1', name: 'Etiqueta 1.1', color: '#4caf50', nestedLabels: [
-					{ id: '1.1.1', name: 'Etiqueta 1.1.1', color: '#2196f3' },
-					{ id: '1.1.2', name: 'Etiqueta 1.1.2', color: '#fff176' }
-				]},
-				{ id: '1.2', name: 'Etiqueta 1.2', color: '#689f38' }
-			]},
-			{ id: '2', name: 'Etiqueta 2', color: '#e1f5fe' },
-			{ id: '3', name: 'Etiqueta 3', color: '#e8eaf6' },
-			{ id: '4', name: 'Etiqueta 4', color: '#80cbc4', nestedLabels: [
-				{ id: '4.1', name: 'Etiqueta 4.1', color: '#2196f3' },
-				{ id: '4.2', name: 'Etiqueta 4.2', color: '#fff176' },
-				{ id: '4.3', name: 'Etiqueta 4.3', color: '#455a64' }
-			]},
-			{ id: '5', name: 'Etiqueta 5', color: '#2e7d32' },
-			{ id: '6', name: 'Etiqueta 6', color: '#ff8a65' },
-			{ id: '7', name: 'Etiqueta 7', color: '#000000' }
-		],
-		currentDatetime: {
-			datetime: null,
-			formattedDate: null,
-			formattedTime: null
-		}
+		errorDialog: {
+			show: false,
+			title: 'Aviso',
+			message: 'No se puede procesar la acción en este momento.',
+			acceptText: 'Cerrar'
+		},
+		signedIn: null,
+		labels: [],
+		records: [],
+		happening: null,
+		currentDatetime: null
+	},
+	getters: {
+		signedIn: (state) => state.signedIn
 	},
 	mutations: {
+		showErrorDialog(state, newErrorDialog) {
+			const { title, message, acceptText } = newErrorDialog || {}
+			state.errorDialog = {
+				show: true,
+				title: title || 'Aviso',
+				message: message || 'No se puede procesar la acción en este momento.',
+				acceptText: acceptText || 'Cerrar'
+			}
+		},
+		hideErrorDialog(state) {
+			state.errorDialog.show = false
+		},
 		setTime(state, newDatetime) {
 			state.currentDatetime = newDatetime
+		},
+		setLabels(state, newLabels) {
+			state.labels = newLabels
+		},
+		setRecords(state, newRecords) {
+			state.records = newRecords
+		},
+		replaceRecord(state, record) {
+			const index = state.records.findIndex( ({ id }) => record.id===id )
+			index>-1 && state.records.splice(index, 1, record)
+		},
+		removeRecord(state, recordId) {
+			const index = state.records.findIndex( ({ id }) => recordId===id )
+			index>-1 && state.records.splice(index, 1)
+		},
+		setHappening(state, newHappening) {
+			state.happening = newHappening
+		},
+		setSignedIn(state, value) {
+			state.signedIn = value
 		}
 	},
 	actions: {
 		linkParentLabels({ state }) {
 			internals.linkParentLabels(state.labels, null)
 		},
-		listenToTime({ commit }, listenerId) {
+		startTimeListening({ commit }, listenerId) {
+			let now = new Date()
+			now.setMilliseconds(0)
+			commit('setTime', now)
 			if ( internals.listeners.includes(listenerId) ) {
 				return listenerId
 			} else {
@@ -51,7 +78,7 @@ export default new Vuex.Store({
 				return newListenerId
 			}
 		},
-		stopListeningToTime({ commit }, listenerId) {
+		stopTimeListening({ commit }, listenerId) {
 			const index = listenerId ? internals.listeners.indexOf(listenerId) : -1
 			const isValidListener = index > -1
 			if ( isValidListener ) {
@@ -59,11 +86,7 @@ export default new Vuex.Store({
 				if ( !internals.listeners.length ) {
 					clearTimeout(internals.timeoutId)
 					internals.timeoutId = null
-					commit('setTime', {
-						datetime: null,
-						formattedDate: null,
-						formattedTime: null
-					})
+					commit('setTime',  null)
 				}
 			}
 		}
@@ -78,20 +101,15 @@ const internals = {
 	linkParentLabels(labels, parentLabel) {
 		for ( let label of labels ) {
 			label.parentLabel = parentLabel
-			if ( label.nestedLabels ) {
-				this.linkParentLabels(label.nestedLabels, label)
+			if ( label.subLabels ) {
+				this.linkParentLabels(label.subLabels, label)
 			}
 		}
 	},
 	updateTime(commit) {
 		this.timeoutId = setTimeout( () => this.updateTime(commit), 1000-Date.now()%1000 )
-		const now = new Date()
-		const newTime = {
-			datetime: now,
-			formattedDate: now.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-			formattedTime: now.
-				toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })
-		}
-		commit('setTime', newTime)
+		let now = new Date()
+		now.setMilliseconds(0)
+		commit('setTime', now)
 	}
 }

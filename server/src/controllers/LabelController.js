@@ -15,7 +15,7 @@ const LabelController = {
 		try {
 			const requestSchema = Joi.object({
 				name: string.required(),
-				color: string.hex().length(6),
+				color: string.pattern(/^#[\da-f]{6}$/i).rule({ message: 'Color sould be in format #rrggbb' }),
 				parentId: string.pattern(/^[\da-f]{24}(.\d+)*$/).rule({ message: 'No such label with id {#value}' })
 			})
 			const badBody = requestSchema.validate(request.body).error
@@ -73,7 +73,7 @@ const LabelController = {
 			const requestSchema = Joi.object({
 				id: string.valid(labelId).messages({ 'any.only': 'Label ids in request URI and body must match' }),
 				name: string.required(),
-				color: string.hex().length(6),
+				color: string.pattern(/^#[\da-f]{6}$/i).rule({ message: 'Color sould be in format #rrggbb' }),
 				parentId: string.pattern(/^[\da-f]{24}(.\d+)*$/).allow(null).rule({ message: 'No such label with id {#value}' })
 			})
 			const badBody = requestSchema.validate(request.body).error

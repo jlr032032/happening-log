@@ -18,6 +18,7 @@
 						<v-text-field
 							dense
 							type="email"
+							v-model="credentials.email"
 						/>
 					</div>
 					<div class="d-flex align-center">
@@ -25,115 +26,113 @@
 						<v-text-field
 							dense
 							type="password"
+							v-model="credentials.password"
 						/>
 					</div>
+					<v-alert
+						dense
+						outlined
+						dismissible
+						type="warning"
+						v-model="message.show"
+					>
+						{{ message.text }}
+					</v-alert>
 					<v-btn
 						class="primary mt-2"
 						width="100%"
 						dark
+						@click="signIn"
 					>
 						Ingresar
 					</v-btn>
 				</form>
 				<div class="d-flex justify-space-between mt-10">
-					<v-dialog max-width="600px">
-						<template v-slot:activator="{ attrs, on }">
-							<div
-								v-bind="attrs"
-								v-on="on"
-							>
-								<v-icon> mdi-account-plus </v-icon>
-								Registrarme
-							</div>
-						</template>
-						<template v-slot:default>
-							<v-card>
-								<v-card-title class="custom--title-2 primary--text"> Registro </v-card-title>
-								<v-card-text>
-									<div class="d-flex align-center">
-										<label class="custom--signup-label flex-shrink-0"> Email: </label>
-										<v-text-field
-											dense
-											type="email"
-										/>
-									</div>
-									<div class="d-flex align-center">
-										<label class="custom--signup-label flex-shrink-0"> Contraseña: </label>
-										<v-text-field
-											dense
-											type="password"
-										/>
-									</div>
-									<div class="d-flex align-center">
-										<label class="custom--signup-label flex-shrink-0"> Confirmar contraseña: </label>
-										<v-text-field
-											dense
-											type="password"
-										/>
-									</div>
-								</v-card-text>
-								<v-card-actions>
-									<v-spacer></v-spacer>
-									<v-btn
-										color="primary"
-										text
-									>
-										Cancelar
-									</v-btn>
-									<v-btn
-										color="primary"
-									>
-										Registrarme
-									</v-btn>
-								</v-card-actions>
-							</v-card>
-						</template>
-					</v-dialog>
-					<v-dialog max-width="600px">
-						<template v-slot:activator="{ attrs, on }">
-							<div
-								v-bind="attrs"
-								v-on="on"
-							>
-								<v-icon> mdi-lock-reset </v-icon>
-								Recuperar acceso
-							</div>
-						</template>
-						<template v-slot:default>
-							<v-card>
-								<v-card-title class="custom--title-2 primary--text"> Recuperar acceso </v-card-title>
-								<v-card-text>
-									<p class="mt-3"> Se enviará un email de recuperación de acceso. </p>
-									<div class="d-flex align-center">
-										<label class="custom--recovery-label flex-shrink-0"> Email: </label>
-										<v-text-field
-											dense
-											type="email"
-										/>
-									</div>
-								</v-card-text>
-								<v-card-actions>
-									<v-spacer />
-									<v-btn
-										color="primary"
-										text
-									>
-										Cancelar
-									</v-btn>
-									<v-btn
-										color="primary"
-									>
-										Enviar
-									</v-btn>
-								</v-card-actions>
-							</v-card>
-						</template>
-					</v-dialog>
+					<signup-handler />
+					<password-resetting-handler />
 				</div>
 			</div>
 		</div>
+
+		<unblocking-handler
+			:email="credentials.email"
+			v-model="unblockingHandler"
+		/>
+
 	</div>
 </template>
+
+<script>
+	import { mapMutations } from 'vuex'
+	import requester from '@/helpers/requester'
+	export default {
+		name: 'Signin',
+		components: {
+			SignupHandler: () => import('@/components/SignupHandler'),
+			PasswordResettingHandler: () => import('@/components/PasswordResettingHandler'),
+			UnblockingHandler: () => import('@/components/UnblockingHandler')
+		},
+		data: () => ({
+			unblockingHandler: null,
+			credentials: {
+				email: '',
+				password: ''
+			},
+			message: {
+				show: false,
+				text: ''
+			}
+		}),
+		methods: {
+			...mapMutations(['setSignedIn']),
+			showMessage(text) {
+				this.message.show = true
+				this.message.text = text
+			},
+			async signIn() {
+				this.message.show = false
+				const email = this.credentials.email.trim()
+				const password = this.credentials.password
+				if ( !email || !password ) {
+					this.showMessage('Se debe proveer email y contraseña')
+					return
+				}
+				const body = { email, password }
+				const response = await requester.post('/auth/token', body)
+				if ( response ) {
+					switch ( response.status ) {
+						case 204:
+							this.setSignedIn(true)
+							this.$router.push('/sucesos')
+							break
+						case 401:
+							switch ( response.data.code ) {
+								case 'INVALID_CREDENTIALS':
+									this.showMessage('Combinación inválida de email y contraseña')
+									break
+								case 'JUST_BLOCKED_USER':
+									this.unblockingHandler = true
+									break
+								default:
+									this.$showErrorDialog()
+							}
+							break
+						case 403:
+							this.unblockingHandler = true
+							break
+						case 409:
+							this.showMessage('El usuario debe ser confirmado mediante el enlace enviado por correo')
+							break
+						default:
+							this.$showErrorDialog()
+					}
+				} else {
+					this.$showErrorDialog()
+				}
+			}
+		}
+	}
+</script>
 
 <style scoped>
 	.custom--main-container {
@@ -171,15 +170,9 @@
 		left: 2em;
 	}
 	.custom--signin-section {
-		width: 290px;
+		width: 305px;
 	}
 	.custom--signin-field-label {
 		width: 100px;
-	}
-	.custom--signup-label {
-		width: 155px;
-	}
-	.custom--recovery-label {
-		width: 50px;
 	}
 </style>

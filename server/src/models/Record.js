@@ -35,8 +35,25 @@ class Record {
 		return deleted
 	}
 
-	async readByHappeningId(userId, happeningId) {
-		return await RecordOdm.find({ userId, happeningId })
+	async deleteByUserId(userId) {
+		await RecordOdm.deleteMany({ userId })
+	}
+
+	async deleteByHappeningId(userId, happeningId) {
+		await RecordOdm.deleteMany({ userId, happeningId })
+	}
+
+	async readByHappeningId(userId, happeningId, last) {
+		if ( last ) {
+			return await RecordOdm
+				.find({ userId, happeningId })
+				.sort({ _id: -1 })
+				.limit(last)
+		} else {
+			return await RecordOdm
+				.find({ userId, happeningId })
+				.sort({ _id: -1 })
+		}
 	}
 
 	async update(userId, happening, recordId, recordData) {
@@ -48,26 +65,29 @@ class Record {
 	}
 
 	async updateFields(userId, happeningId, updates) {
-		let records = await RecordOdm.find({ userId, happeningId })
-		let changes = []
-		records.forEach( record => {
-			const oldFields = record.fields
-			let updatedFields = []
-			updates.forEach( ({ old, latest }) => {
-				let found = oldFields.find( ({ _id }) => latest._id===_id )
-				if ( found ) {
-					found.value = dataTypes.changeType(found.value, old.type, latest.type)
-					found.value && updatedFields.push(found)
-				}
-			})
-			if ( updatedFields.length ) {
-				record.fields = updatedFields
-				changes.push(record.save())
-			} else {
-				changes.push(RecordOdm.findOneAndDelete({ _id: record._id }))
+		if ( updates && updates.length ) {
+			const sample = updates[0]
+			const isTypeUpdate = sample.old.type!==sample.latest.type
+			if ( isTypeUpdate ) {
+				let records = await RecordOdm.find({ userId, happeningId })
+				let changes = []
+				records.forEach( record => {
+					updates.forEach( ({ old, latest }) => {
+						let found = record.fields.find( ({ _id }) => latest._id===_id )
+						if ( found ) {
+							found.value = dataTypes.changeType(found.value, old.type, latest.type)
+						}
+					})
+					record.fields = record.fields.filter( ({ value }) => value!==null && value!==undefined )
+					if ( record.fields.length ) {
+						changes.push(record.save())
+					} else {
+						changes.push(RecordOdm.findOneAndDelete({ _id: record._id }))
+					}
+				})
+				await Promise.all(changes)
 			}
-		})
-		await Promise.all(changes)
+		}
 	}
 
 }

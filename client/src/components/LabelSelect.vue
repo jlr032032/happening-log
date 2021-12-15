@@ -179,8 +179,9 @@
 				}
 			},
 			clearSelection() {
-				this.selected_ = []
-				this.$emit('change', [])
+				const noSelectionValue = this.multiple ? [] : null
+				this.selected_ = noSelectionValue
+				this.$emit('change', noSelectionValue)
 			}
 		}
 	}

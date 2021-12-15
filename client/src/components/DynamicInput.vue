@@ -10,14 +10,16 @@
 		:value="value"
 		@input="handleInput"
 	/>
-	<time-input
-		v-else-if="isTimeInput"
-		:time="value"
-		@change="handleInput"
-	/>
 	<date-input
 		v-else-if="isDateInput"
-		:date="value"
+		:currentDateSelector="!updateMode"
+		:value="value"
+		@change="handleInput"
+	/>
+	<datetime-input
+		v-else-if="isDatetimeInput"
+		:updateMode="updateMode"
+		:value="value"
 		@change="handleInput"
 	/>
 </template>
@@ -27,12 +29,13 @@
 		name: 'DynamicInput',
 		components: {
 			NumberInput: () => import('@/components/NumberInput'),
-			TimeInput: () => import('@/components/TimeInput'),
-			DateInput: () => import('@/components/DateInput')
+			DateInput: () => import('@/components/DateInput'),
+			DatetimeInput: () => import('@/components/DatetimeInput')
 		},
 		props: {
 			type: { type: String, default: 'text' },
-			value: {}
+			updateMode: { type: Boolean, default: false },
+			value: true
 		},
 		model: {
 			prop: 'value',
@@ -45,11 +48,11 @@
 			isNumberInput() {
 				return this.type==='number'
 			},
-			isTimeInput() {
-				return this.type==='time'
-			},
 			isDateInput() {
 				return this.type==='date'
+			},
+			isDatetimeInput() {
+				return this.type==='datetime'
 			}
 		},
 		methods: {

@@ -9,7 +9,8 @@ const dbConnectionHandler = {
 		const connectionOptions = {
 			useUnifiedTopology: true,
 			useNewUrlParser: true,
-			useCreateIndex: true
+			useCreateIndex: true,
+			useFindAndModify: false
 		}
 		await mongoose.connect(connectionString, connectionOptions)
 	},

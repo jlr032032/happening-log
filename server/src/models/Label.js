@@ -66,6 +66,10 @@ class Label {
 		}
 	}
 
+	async deleteByUserId(userId) {
+		await LabelOdm.deleteMany({ userId })
+	}
+
 	async findMany(labelsIds, userId) {
 		let found = []
 		if ( !labelsIds.length ) {
