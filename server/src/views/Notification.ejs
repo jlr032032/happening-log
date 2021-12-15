@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Registro de Sucesos</title>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+		<link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+		<link href="../../vuetify2.6.min.css" rel="stylesheet">
+		<script src="../../vue2.6.14.min.js"></script>
+		<script src="../../vuetify2.6.min.js"></script>
+		<style>
+			#app {
+				background-image: url("../../background.png");
+				background-size: cover;
+				background-position-x: center;
+				background-position-y: center;
+				background-repeat: no-repeat;
+			}
+			.custom--title {
+				letter-spacing: 0.2rem !important;
+				font-size: 1.1rem !important;
+				font-weight: 400 !important;
+				text-transform: uppercase !important;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="app">
+			<v-app>
+				<v-main>
+					<v-toolbar
+						color="primary"
+						class="px-2"
+					>
+						<v-toolbar-title class="white--text"> Registro </v-toolbar-title>
+					</v-toolbar>
+					
+					<v-dialog
+						persistent
+						:value="true"
+					>
+						<v-card>
+							<v-card-title class="custom--title primary--text"><%= title %></v-card-title>
+							<v-card-text><%= message %></v-card-text>
+						</v-card>
+					</v-dialog>
+
+				</v-main>
+			</v-app>
+		</div>
+	</body>
+
+	<script>
+		new Vue({
+			el: '#app',
+			vuetify: new Vuetify({
+				theme: {
+					themes: {
+						light: { primary: '#6270e1' }
+					}
+				}
+			})
+		})
+	</script>
+</html>
