@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const dataTypes = require('../helpers/dataTypes')
+const dataTypes = require('../helpers/DataTypes')
 const clientFieldsPlugin = require('./plugins/ClientFields')
 
 let HappeningOdm
