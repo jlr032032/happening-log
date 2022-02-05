@@ -5,21 +5,22 @@ const jwtVerify = util.promisify(jwt.verify)
 
 const auth = {
 
-	async accessToken(ip, userId) {
-		return await this.sign({
-			ip,
-			userId,
-			exp: Date.now() + process.env.TOKEN_MINUTES * 60000,
-			access: true
-		})
-	},
-
-	async refreshToken(ip, userId) {
-		return await this.sign({
-			userId,
-			refresh: true,
-			ip
-		})
+	async token(userId) {
+		const id = internals.generateId(10)
+		const [ accessToken, refreshToken ] = await Promise.all([
+			this.sign({
+				id,
+				userId,
+				exp: Date.now() + process.env.TOKEN_MINUTES * 60000,
+				access: true
+			}),
+			this.sign({
+				id,
+				userId,
+				refresh: true
+			})
+		])
+		return { accessToken, refreshToken }
 	},
 
 	async sign(payload) {
@@ -32,6 +33,22 @@ const auth = {
 		} catch (error) {
 			return null
 		}
+	}
+
+}
+
+const internals = {
+
+	generateId(length) {
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwyz'
+			+ '01234567890123456789012345678901234567890123456789'
+		let id = ''
+		const factor = chars.length - 1
+		for ( let i=0; i<length; i++ ) {
+			let randomIndex = Math.round(factor*Math.random())
+			id += chars[randomIndex]
+		}
+		return id
 	}
 
 }
