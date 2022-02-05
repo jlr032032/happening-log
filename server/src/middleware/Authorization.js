@@ -3,8 +3,8 @@ const auth = require('../helpers/Auth')
 async function AuthorizationMiddleware(request, response, next) {
 	let token = request.cookies.accessToken
 	if ( token ) {
-		token = token && await auth.tokenData(token)
-		if ( token && token.ip===request.ip && token.access ) {
+		token = await auth.tokenData(token)
+		if ( token && token.access ) {
 			if ( Date.now()<token.exp ) {
 				request.userId = token.userId
 				await next()
