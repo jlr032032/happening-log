@@ -29,12 +29,9 @@ const UserController = {
 			if ( badBody ) {
 				response.status(400).json({ message: badBody.details[0].message })
 			} else {
-				const { ip, body: { email, password } } = request
+				const { email, password } = request.body
 				const user = await User.signIn(email, password)
-				const [ accessToken, refreshToken ] = await Promise.all([
-					auth.accessToken(ip, user._id),
-					auth.refreshToken(ip, user._id)
-				])
+				const { accessToken, refreshToken } = await auth.token(user.id)
 				response
 					.status(204)
 					.cookie('accessToken', accessToken, internal.accessCookieOptions)
@@ -61,16 +58,18 @@ const UserController = {
 				const { message } = badBody.details[0]
 				response.status(400).json({ message })
 			} else {
-				let { accessToken: access, refreshToken } = request.cookies
+				let { accessToken: access, refreshToken: refresh } = request.cookies
 				access = await auth.tokenData(access)
-				const refresh = await auth.tokenData(refreshToken)
-				const tokensGiven = access && refresh
-				const ipsMatch = tokensGiven && request.ip===access.ip && access.ip===refresh.ip
-				if ( ipsMatch && refresh.refresh ) {
-					const newAccessToken = await auth.accessToken(access.ip, access.userId)
+				refresh = await auth.tokenData(refresh)
+				const validTokens =
+					access && access.access &&
+					refresh && refresh.refresh &&
+					access.id===refresh.id
+				if ( validTokens ) {
+					const { accessToken, refreshToken } = await auth.token(refresh.userId)
 					response
 						.status(204)
-						.cookie('accessToken', newAccessToken, internal.accessCookieOptions)
+						.cookie('accessToken', accessToken, internal.accessCookieOptions)
 						.cookie('refreshToken', refreshToken, internal.refreshCookieOptions)
 						.end()
 				} else {
@@ -360,14 +359,14 @@ const internal = {
 
 	accessCookieOptions: {
 		httpOnly: true,
-		secure: false,
-		sameSite: 'Strict'
+		secure: true,
+		sameSite: 'None'
 	},
 
 	refreshCookieOptions: {
 		httpOnly: true,
-		secure: false,
-		sameSite: 'Strict',
+		secure: true,
+		sameSite: 'None',
 		path: '/auth/refreshing'
 	},
 
